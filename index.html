@@ -3,29 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA MENTOR IA - VERSÃO 4.0</title>
+    <title>Mentor IA - Gestão de Perfis de Elite</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --ai-chat: #0f172a; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Área Principal */
         #main-content { flex: 1; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; background: #fff; }
-        #ai-sidebar { width: 400px; background: var(--ai-chat); color: white; display: flex; flex-direction: column; border-left: 1px solid #1e293b; box-shadow: -5px 0 15px rgba(0,0,0,0.2); }
-        .container { max-width: 800px; width: 100%; background: white; padding: 40px; border-radius: 16px; border: 1px solid #e2e8f0; }
+        .container { max-width: 850px; width: 100%; background: white; padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        /* Questões e Imagens */
+        #q-enunciado img { max-width: 100%; height: auto; display: block; margin: 20px auto; border-radius: 8px; border: 1px solid #ddd; }
         .opcao { display: flex; padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; transition: 0.2s; align-items: center; margin-bottom: 10px; }
         .letra { min-width: 30px; height: 30px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 12px; color: var(--primary); }
         .correct { border-color: #16a34a !important; background: #f0fdf4 !important; }
         .wrong { border-color: #dc2626 !important; background: #fef2f2 !important; }
-        .ai-header { padding: 25px; background: #020617; border-bottom: 2px solid #3b82f6; text-align: center; }
-        #avatar { width: 70px; height: 70px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 35px; border: 3px solid #3b82f6; box-shadow: 0 0 15px var(--primary); }
-        #chat-window { flex: 1; overflow-y: auto; padding: 20px; font-size: 0.9rem; line-height: 1.6; }
-        .msg { margin-bottom: 20px; padding: 15px; border-radius: 12px; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .msg-ai { background: #1e293b; border-left: 4px solid var(--primary); color: #e2e8f0; }
+
+        /* Barra Lateral IA */
+        #ai-sidebar { width: 420px; background: var(--ai-chat); color: white; display: flex; flex-direction: column; border-left: 1px solid #1e293b; }
+        .ai-header { padding: 20px; background: #020617; border-bottom: 2px solid #3b82f6; text-align: center; }
+        #chat-window { flex: 1; overflow-y: auto; padding: 20px; font-size: 0.9rem; }
+        .msg { margin-bottom: 15px; padding: 12px; border-radius: 10px; line-height: 1.5; }
+        .msg-ai { background: #1e293b; border-left: 4px solid var(--primary); }
         .msg-user { background: #334155; align-self: flex-end; border-right: 4px solid #94a3b8; }
-        .ai-input-area { padding: 20px; background: #020617; }
-        input[type="text"] { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; outline: none; }
-        #loading-overlay { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        
+        /* Gerenciador de Perfis */
+        .profile-card { background: #1e293b; padding: 10px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155; }
+        .btn-del { background: #dc2626; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; font-size: 0.7rem; }
+        .btn-sel { background: var(--primary); color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; font-size: 0.7rem; }
+        
+        .ai-input-area { padding: 15px; background: #020617; display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; }
+        
+        #loading-overlay { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -33,81 +45,115 @@
 
 <div id="loading-overlay">
     <div class="spinner"></div>
-    <h3 id="load-status">Sincronizando Banco de Dados...</h3>
+    <p>Sincronizando Banco de Dados e Perfis...</p>
 </div>
 
 <main id="main-content">
     <div id="card" class="container" style="display:none">
-        <div id="q-header" style="color:#64748b; font-size:0.8rem; margin-bottom:15px;"></div>
-        <div id="q-enunciado" style="font-size:1.2rem; line-height:1.6; margin-bottom: 25px;"></div>
-        <div id="q-alternativas"></div>
+        <div id="q-header" style="color:#64748b; font-size:0.8rem; margin-bottom:10px;"></div>
+        <div id="q-enunciado"></div>
+        <div id="q-alternativas" style="margin-top:20px;"></div>
     </div>
-    <div id="empty-state" style="text-align: center; margin-top: 30vh; color: #94a3b8;">
-        <h2 id="welcome-title">Bem-vindo ao Treinamento de Elite</h2>
-        <p>Aguardando seu briefing no chat lateral...</p>
+    <div id="setup-screen" style="text-align:center; margin-top:20vh;">
+        <h2 id="title-main">Pronto para o Combate</h2>
+        <p>Crie ou selecione um perfil na barra lateral para carregar o plano de estudos.</p>
     </div>
 </main>
 
 <aside id="ai-sidebar">
     <div class="ai-header">
-        <div id="avatar">🤖</div>
-        <div style="font-weight: 800; color: #3b82f6;">MENTOR IA Llama 3.3</div>
+        <div style="font-weight: 800; color: #3b82f6; margin-bottom: 10px;">MENTOR IA ESTRATEGISTA</div>
+        <div id="profile-area">
+            </div>
     </div>
     <div id="chat-window"></div>
     <div class="ai-input-area">
-        <input type="text" id="user-msg" placeholder="Responda aqui..." onkeyup="if(event.key==='Enter') processar()">
+        <input type="text" id="user-msg" placeholder="Digite aqui..." onkeyup="if(event.key==='Enter') processar()">
     </div>
 </aside>
 
 <script>
-    // Configurações Fixas
     const apiKey = "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";
     const GITHUB_URL = "https://raw.githubusercontent.com/questaogabaritada-hue/meu-banco-questoes/main/banco_final.json?v=" + Date.now();
     
     let dados = [];
     let atualIdx = -1;
-    let fase = "ENTREVISTA";
-
-    // Forçar limpeza de bancos antigos
-    indexedDB.deleteDatabase("SimuladorDB");
+    let perfis = JSON.parse(localStorage.getItem('mentor_perfis')) || [];
+    let perfilAtivo = null;
 
     window.onload = async () => {
         try {
-            const resp = await fetch(GITHUB_URL);
-            dados = await resp.json();
+            const r = await fetch(GITHUB_URL);
+            dados = await r.json();
             document.getElementById('loading-overlay').style.display = 'none';
-            addMsg("IA", "Saudações! Sou seu Mentor Estrategista carregado com o modelo Llama 3.3 70B. O banco de questões do seu GitHub foi sincronizado. \n\nPara começarmos: **Qual cargo, banca e matérias vamos atacar hoje?**");
+            renderPerfis();
+            addMsg("IA", "Sistema Online. Selecione um perfil salvo ou digite os dados do seu concurso para criar um novo plano.");
         } catch (e) {
-            document.getElementById('load-status').innerText = "Erro ao conectar. Verifique se o arquivo JSON está no GitHub.";
+            document.getElementById('loading-overlay').innerHTML = "Erro ao carregar banco do GitHub.";
         }
     };
+
+    function renderPerfis() {
+        const area = document.getElementById('profile-area');
+        area.innerHTML = perfis.length ? '' : '<span style="font-size:0.7rem; color:#64748b;">Nenhum perfil salvo</span>';
+        perfis.forEach((p, i) => {
+            const div = document.createElement('div');
+            div.className = 'profile-card';
+            div.innerHTML = `
+                <div style="text-align:left; font-size:0.8rem"><b>${p.nome}</b></div>
+                <div>
+                    <button class="btn-sel" onclick="ativarPerfil(${i})">Focar</button>
+                    <button class="btn-del" onclick="excluirPerfil(${i})">X</button>
+                </div>
+            `;
+            area.appendChild(div);
+        });
+    }
 
     async function processar() {
         const input = document.getElementById('user-msg');
         const txt = input.value.trim();
         if(!txt) return;
-
         addMsg("Você", txt, "msg-user");
         input.value = "";
 
-        if(fase === "ENTREVISTA") {
-            fase = "SIMULADO";
-            addMsg("IA", "Excelente. Gerando seu perfil de estudo e assumindo o papel da banca... Vamos começar o sorteio das questões.");
-            sortear();
+        if(!perfilAtivo) {
+            const novo = { nome: txt.substring(0, 25), briefing: txt, data: new Date() };
+            perfis.push(novo);
+            localStorage.setItem('mentor_perfis', JSON.stringify(perfis));
+            renderPerfis();
+            ativarPerfil(perfis.length - 1);
         } else {
-            const resp = await chamarIA(`Comando do aluno: ${txt}. Questão atual: ${dados[atualIdx].enunciado}`);
-            addMsg("IA", resp);
+            const r = await chamarIA(`Contexto: ${perfilAtivo.briefing}. Aluno diz: ${txt}`);
+            addMsg("IA", r);
             if(txt.toLowerCase().includes("próxima")) sortear();
         }
+    }
+
+    function ativarPerfil(idx) {
+        perfilAtivo = perfis[idx];
+        addMsg("IA", `Perfil **${perfilAtivo.nome}** ativado. Retomando plano de estudos...`);
+        document.getElementById('title-main').innerText = "Plano Ativo: " + perfilAtivo.nome;
+        sortear();
+    }
+
+    function excluirPerfil(idx) {
+        perfis.splice(idx, 1);
+        localStorage.setItem('mentor_perfis', JSON.stringify(perfis));
+        perfilAtivo = null;
+        renderPerfis();
+        location.reload();
     }
 
     function sortear() {
         atualIdx = Math.floor(Math.random() * dados.length);
         const q = dados[atualIdx];
-        document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('card').style.display = 'block';
+        
         document.getElementById('q-header').innerText = `${q.info} | ID: ${q.id}`;
-        document.getElementById('q-enunciado').innerHTML = q.htmlEnunciado || q.enunciado;
+        // Renderiza enunciado com suporte a imagens
+        document.getElementById('q-enunciado').innerHTML = q.htmlEnunciado || q.enunciado || "Sem enunciado";
         
         const area = document.getElementById('q-alternativas');
         area.innerHTML = '';
@@ -117,38 +163,48 @@
             btn.className = 'opcao';
             btn.innerHTML = `<div class="letra">${l}</div><div style="flex:1">${q.alts[i]}</div>`;
             btn.onclick = async () => {
+                const todas = area.querySelectorAll('.opcao');
+                todas.forEach(o => o.style.pointerEvents = 'none');
                 if(l === q.gabarito) {
                     btn.classList.add('correct');
-                    addMsg("IA", "<b>Acerto confirmado!</b> Analisando seu desempenho... Deseja seguir para a próxima?");
+                    addMsg("IA", "<b>Correto!</b> Conforme o seu plano, você domina este tópico. Vamos para a próxima?");
                 } else {
                     btn.classList.add('wrong');
-                    const r = await chamarIA(`O aluno ERROU a questão ${q.id}. Explique o motivo técnico.`);
+                    todas.forEach(o => { if(o.querySelector('.letra').innerText === q.gabarito) o.classList.add('correct'); });
+                    const r = await chamarIA(`O aluno ERROU a questão ID ${q.id} (Gabarito ${q.gabarito}). Explique a lógica da banca.`);
                     addMsg("IA", r);
                 }
             };
             area.appendChild(btn);
         });
+        window.scrollTo(0,0);
     }
 
-    async function chamarIA(p) {
+    async function chamarIA(prompt) {
         try {
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
-                    messages: [{role: "system", content: "Você é um Mentor de Concursos. Ao explicar erros, seja técnico e estratégico."}, {role: "user", content: p}]
+                    messages: [
+                        {role: "system", content: "Você é um Mentor Estrategista. Use Markdown. Se o aluno pedir a próxima, diga que está sorteando."},
+                        {role: "user", content: prompt}
+                    ],
+                    temperature: 0.5
                 })
             });
-            const d = await r.json();
-            return d.choices[0].message.content;
-        } catch(e) { return "Erro de conexão com o cérebro da IA."; }
+            const data = await response.json();
+            return data.choices[0].message.content;
+        } catch (e) {
+            return "⚠️ Erro temporário de conexão com a Groq. Tente novamente em instantes.";
+        }
     }
 
-    function addMsg(a, t, c = "msg-ai") {
-        const w = document.getElementById('chat-window');
-        w.innerHTML += `<div class="msg ${c}"><b>${a}:</b><br>${t}</div>`;
-        w.scrollTop = w.scrollHeight;
+    function addMsg(autor, texto, classe = "msg-ai") {
+        const win = document.getElementById('chat-window');
+        win.innerHTML += `<div class="msg ${classe}"><b>${autor}:</b><br>${texto}</div>`;
+        win.scrollTop = win.scrollHeight;
     }
 </script>
 </body>
