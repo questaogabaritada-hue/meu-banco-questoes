@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Combate - Inteligência de Banca</title>
+    <title>Simulador de Combate - IA Ativa</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --ai-chat: #0f172a; }
@@ -18,10 +18,11 @@
         .ai-header { padding: 20px; background: #020617; border-bottom: 1px solid #1e293b; text-align: center; }
         #avatar { width: 60px; height: 60px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 3px solid #3b82f6; }
         #chat-window { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.85rem; line-height: 1.5; }
-        .msg { margin-bottom: 15px; padding: 10px; border-radius: 8px; }
-        .msg-ai { background: #1e293b; border-left: 3px solid var(--primary); }
+        .msg { margin-bottom: 15px; padding: 10px; border-radius: 8px; word-wrap: break-word; }
+        .msg-ai { background: #1e293b; border-left: 3px solid var(--primary); color: #e2e8f0; }
         .ai-input-area { padding: 15px; background: #020617; }
-        input[type="text"] { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        input[type="text"] { width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        .nav-btn { padding: 10px 20px; cursor: pointer; background: #fff; border: 1px solid #ddd; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -29,28 +30,36 @@
 <main id="main-content">
     <div id="welcome" style="text-align:center; margin-top:100px;">
         <h1>🛡️ Simulador de Banca</h1>
-        <p>Carregue o JSON na engrenagem lateral para ativar a IA.</p>
-        <button onclick="document.getElementById('file-in').click()" style="padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer;">Carregar Banco de Dados</button>
+        <p>Carregue o JSON para começar.</p>
+        <button onclick="document.getElementById('file-in').click()" style="padding:15px 30px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">CARREGAR BANCO DE DADOS</button>
         <input type="file" id="file-in" style="display:none">
     </div>
 
     <div id="card" class="container" style="display:none">
-        <div id="q-header" style="color:#94a3b8; font-size:0.8rem; margin-bottom:20px;"></div>
-        <div id="q-enunciado" style="font-size:1.1rem; line-height:1.6;"></div>
-        <div id="q-alternativas" style="margin-top:25px;"></div>
+        <div id="q-header" style="color:#94a3b8; font-size:0.8rem; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:10px;"></div>
+        <div id="q-enunciado" style="font-size:1.1rem; line-height:1.6; margin-bottom: 20px;"></div>
+        <div id="q-alternativas"></div>
+        <div style="margin-top:30px; display:flex; justify-content:space-between; align-items: center;">
+            <button onclick="navegar(-1)" class="nav-btn">← Anterior</button>
+            <span id="counter" style="font-weight: bold;">0/0</span>
+            <button onclick="navegar(1)" class="nav-btn">Próxima →</button>
+        </div>
     </div>
 </main>
 
 <aside id="ai-sidebar">
     <div class="ai-header">
         <div id="avatar">🤖</div>
-        <div id="ai-status">MODO LIVRE</div>
+        <select id="perfil-select" onchange="mudarPerfil()" style="background:#0f172a; color:white; border:1px solid #334155; padding:5px; width:100%; border-radius:5px;">
+            <option value="livre">Modo: Estrategista</option>
+            <option value="banca">Modo: A Própria Banca</option>
+        </select>
     </div>
     <div id="chat-window">
-        <div class="msg msg-ai">Olá! Carregue seu banco e eu farei o Raio-X das questões para você.</div>
+        <div class="msg msg-ai"><b>Sistema:</b> Pronto para o Raio-X. Selecione uma resposta ou digite algo abaixo.</div>
     </div>
     <div class="ai-input-area">
-        <input type="text" id="user-msg" placeholder="Pergunte algo à banca..." onkeyup="if(event.key==='Enter') enviarMsg()">
+        <input type="text" id="user-msg" placeholder="Pergunte à IA..." onkeyup="if(event.key==='Enter') enviarMsg()">
     </div>
 </aside>
 
@@ -59,17 +68,25 @@
     let dados = [];
     let atual = 0;
 
-    // Conexão com Banco de Dados do Navegador
-    const request = indexedDB.open("SimuladorDB", 5);
+    // Carregar dados salvos ao abrir
+    const request = indexedDB.open("SimuladorDB", 6);
+    request.onupgradeneeded = e => {
+        let db = e.target.result;
+        if (!db.objectStoreNames.contains("questoes")) db.createObjectStore("questoes");
+    };
     request.onsuccess = e => {
         let db = e.target.result;
-        let tx = db.transaction("questoes", "readonly");
-        tx.objectStore("questoes").get("data").onsuccess = ev => {
-            if(ev.target.result) { dados = ev.target.result; document.getElementById('welcome').style.display='none'; abrir(0); }
+        db.transaction("questoes").objectStore("questoes").get("data").onsuccess = ev => {
+            if(ev.target.result) { 
+                dados = ev.target.result; 
+                document.getElementById('welcome').style.display='none'; 
+                abrir(0); 
+            }
         };
     };
 
     function abrir(idx) {
+        if(!dados[idx]) return;
         atual = idx;
         const q = dados[idx];
         document.getElementById('card').style.display = 'block';
@@ -81,41 +98,86 @@
             if(!q.alts[i]) return;
             const btn = document.createElement('div');
             btn.className = 'opcao';
-            btn.innerHTML = `<div class="letra">${l}</div><div>${q.alts[i]}</div>`;
+            btn.innerHTML = `<div class="letra">${l}</div><div style="flex:1">${q.alts[i]}</div>`;
             btn.onclick = () => {
-                if(l === q.gabarito) btn.classList.add('correct');
-                else {
+                const todas = area.querySelectorAll('.opcao');
+                todas.forEach(o => o.style.pointerEvents = 'none');
+                if(l === q.gabarito) {
+                    btn.classList.add('correct');
+                    addMsg("AI", "Excelente acerto! Quer que eu aprofunde o 'Raio-X' deste tema?");
+                } else {
                     btn.classList.add('wrong');
-                    chatIA(`O usuário errou a questão sobre ${q.info}. Explique o conceito de forma estratégica.`);
+                    todas.forEach(o => { if(o.querySelector('.letra').innerText === q.gabarito) o.classList.add('correct'); });
+                    chatIA(`O usuário errou a questão ID: ${q.id}. Explique o assunto focado na banca e o motivo da pegadinha.`);
                 }
             };
             area.appendChild(btn);
         });
+        document.getElementById('counter').innerText = `${idx + 1} / ${dados.length}`;
     }
 
-    async function chatIA(msg) {
+    async function chatIA(comando) {
         const win = document.getElementById('chat-window');
-        win.innerHTML += `<div class="msg msg-ai"><b>IA analisando...</b></div>`;
+        const modo = document.getElementById('perfil-select').value;
+        addMsg("Sistema", "Processando Raio-X...");
+
+        const systemPrompt = modo === "banca" 
+            ? "Você é a banca examinadora. Seja direto, técnico e focado em como o assunto é cobrado em provas reais." 
+            : "Você é um mentor de concursos. Analise o erro e explique o conceito de forma simples e estratégica.";
+
         try {
             const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    model: "llama3-8b-8192",
-                    messages: [{role: "system", content: "Você é um estrategista de concursos."}, {role: "user", content: msg}]
+                    model: "llama3-8b-8192", // Modelo mais leve para garantir resposta
+                    messages: [
+                        {role: "system", content: systemPrompt},
+                        {role: "user", content: `Questão: ${dados[atual].enunciado}. Comando: ${comando}`}
+                    ]
                 })
             });
             const d = await r.json();
-            win.lastChild.innerHTML = `<b>IA:</b><br>${d.choices[0].message.content}`;
-            win.scrollTop = win.scrollHeight;
-        } catch(e) { console.error(e); }
+            const resposta = d.choices[0].message.content;
+            
+            // Remove a mensagem de "Processando" e coloca a real
+            win.lastChild.remove();
+            addMsg("IA", resposta);
+        } catch(e) { 
+            win.lastChild.innerHTML = "<b>Erro:</b> Não consegui conectar à Groq. Verifique sua internet.";
+        }
+    }
+
+    function addMsg(autor, texto) {
+        const win = document.getElementById('chat-window');
+        win.innerHTML += `<div class="msg msg-ai"><b>${autor}:</b><br>${texto}</div>`;
+        win.scrollTop = win.scrollHeight;
+    }
+
+    function enviarMsg() {
+        const input = document.getElementById('user-msg');
+        if(!input.value) return;
+        addMsg("Você", input.value);
+        chatIA(input.value);
+        input.value = "";
+    }
+
+    function navegar(dir) {
+        let n = atual + dir;
+        if(n >= 0 && n < dados.length) abrir(n);
+    }
+
+    function mudarPerfil() {
+        const p = document.getElementById('perfil-select').value;
+        document.getElementById('avatar').innerText = p === 'banca' ? "🏛️" : "🤖";
+        addMsg("Sistema", `Modo alterado para: ${p.toUpperCase()}`);
     }
 
     document.getElementById('file-in').onchange = e => {
         const reader = new FileReader();
         reader.onload = ev => {
             dados = JSON.parse(ev.target.result);
-            const dbReq = indexedDB.open("SimuladorDB", 5);
+            const dbReq = indexedDB.open("SimuladorDB", 6);
             dbReq.onsuccess = () => {
                 const tx = dbReq.result.transaction("questoes", "readwrite");
                 tx.objectStore("questoes").put(dados, "data");
