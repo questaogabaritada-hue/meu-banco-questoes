@@ -3,95 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador IA - Piloto Automático</title>
+    <title>Mentor IA - Treinamento de Elite</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --ai-chat: #0f172a; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-        #main-content { flex: 1; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
-        #ai-sidebar { width: 350px; background: var(--ai-chat); color: white; display: flex; flex-direction: column; border-left: 1px solid #1e293b; }
-        .container { max-width: 800px; width: 100%; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        #main-content { flex: 1; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; background: #fff; }
+        #ai-sidebar { width: 400px; background: var(--ai-chat); color: white; display: flex; flex-direction: column; border-left: 1px solid #1e293b; box-shadow: -5px 0 15px rgba(0,0,0,0.2); }
+        .container { max-width: 800px; width: 100%; background: white; padding: 40px; border-radius: 16px; border: 1px solid #e2e8f0; }
         .opcao { display: flex; padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; transition: 0.2s; align-items: center; margin-bottom: 10px; }
         .letra { min-width: 30px; height: 30px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 12px; color: var(--primary); }
         .correct { border-color: #16a34a !important; background: #f0fdf4 !important; }
         .wrong { border-color: #dc2626 !important; background: #fef2f2 !important; }
-        .ai-header { padding: 20px; background: #020617; border-bottom: 1px solid #1e293b; text-align: center; }
-        #avatar { width: 60px; height: 60px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 3px solid #3b82f6; }
-        #chat-window { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.85rem; line-height: 1.5; }
-        .msg { margin-bottom: 15px; padding: 10px; border-radius: 8px; word-wrap: break-word; }
-        .msg-ai { background: #1e293b; border-left: 3px solid var(--primary); color: #e2e8f0; }
-        .ai-input-area { padding: 15px; background: #020617; }
-        input[type="text"] { width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        .nav-btn { padding: 10px 20px; cursor: pointer; background: #fff; border: 1px solid #ddd; border-radius: 5px; }
+        .ai-header { padding: 25px; background: #020617; border-bottom: 2px solid #3b82f6; text-align: center; }
+        #avatar { width: 70px; height: 70px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 35px; border: 3px solid #3b82f6; box-shadow: 0 0 15px var(--primary); }
+        #chat-window { flex: 1; overflow-y: auto; padding: 20px; font-size: 0.9rem; line-height: 1.6; scroll-behavior: smooth; }
+        .msg { margin-bottom: 20px; padding: 15px; border-radius: 12px; position: relative; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .msg-ai { background: #1e293b; border-left: 4px solid var(--primary); color: #e2e8f0; }
+        .msg-user { background: #334155; align-self: flex-end; border-right: 4px solid #94a3b8; }
+        .ai-input-area { padding: 20px; background: #020617; }
+        input[type="text"] { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; outline: none; }
+        #loading-overlay { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<main id="main-content">
-    <div id="loading-screen" style="text-align:center; margin-top:20vh;">
-        <h2 id="status-text">Conectando ao Banco de Dados...</h2>
-        <div style="color: #64748b;">A IA está preparando sua sessão de estudos.</div>
-    </div>
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <h3 id="load-status">Sincronizando com GitHub...</h3>
+</div>
 
+<main id="main-content">
     <div id="card" class="container" style="display:none">
-        <div id="q-header" style="color:#94a3b8; font-size:0.8rem; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:10px;"></div>
-        <div id="q-enunciado" style="font-size:1.1rem; line-height:1.6; margin-bottom: 20px;"></div>
+        <div id="q-header" style="color:#64748b; font-size:0.8rem; margin-bottom:15px;"></div>
+        <div id="q-enunciado" style="font-size:1.2rem; line-height:1.6; margin-bottom: 25px;"></div>
         <div id="q-alternativas"></div>
-        <div style="margin-top:30px; display:flex; justify-content:space-between; align-items: center;">
-            <button onclick="navegar(-1)" class="nav-btn">← Anterior</button>
-            <span id="counter" style="font-weight: bold;">0/0</span>
-            <button onclick="navegar(1)" class="nav-btn">Próxima →</button>
-        </div>
+    </div>
+    <div id="empty-state" style="text-align: center; margin-top: 30vh; color: #94a3b8;">
+        <h2>Aguardando Plano de Estudo...</h2>
+        <p>Responda à IA no chat lateral para começar.</p>
     </div>
 </main>
 
 <aside id="ai-sidebar">
     <div class="ai-header">
         <div id="avatar">🤖</div>
-        <div style="font-weight: bold; margin-bottom: 5px;">IA ESTRATEGISTA</div>
+        <div style="font-weight: 800; letter-spacing: 1px; color: #3b82f6;">MENTOR ESTRATEGISTA</div>
+        <div id="plan-status" style="font-size: 0.7rem; color: #94a3b8; margin-top: 5px;">AGUARDANDO BRIEFING</div>
     </div>
-    <div id="chat-window">
-        <div class="msg msg-ai"><b>Sistema:</b> Aguardando carregamento dos dados...</div>
-    </div>
+    <div id="chat-window"></div>
     <div class="ai-input-area">
-        <input type="text" id="user-msg" placeholder="Dúvida sobre a questão?" onkeyup="if(event.key==='Enter') enviarMsg()">
+        <input type="text" id="user-msg" placeholder="Digite sua resposta aqui..." onkeyup="if(event.key==='Enter') processarEntrada()">
     </div>
 </aside>
 
 <script>
-    // Chave Groq e Link do seu GitHub
     const apiKey = "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";
-    const GITHUB_JSON_URL = "https://raw.githubusercontent.com/questaogabaritada-hue/meu-banco-questoes/main/banco_final.json";
+    const GITHUB_URL = "https://raw.githubusercontent.com/questaogabaritada-hue/meu-banco-questoes/main/banco_final.json";
     
     let dados = [];
-    let atual = 0;
+    let atualIdx = -1;
+    let fase = "ENTREVISTA"; 
+    let perfilUsuario = {};
 
-    // Função que roda assim que a página abre
     window.onload = async () => {
-        const status = document.getElementById('status-text');
         try {
-            const response = await fetch(GITHUB_JSON_URL);
-            if (!response.ok) throw new Error("Erro ao baixar arquivo");
-            
-            dados = await response.json();
-            
-            // IA seleciona a primeira questão automaticamente
-            document.getElementById('loading-screen').style.display = 'none';
-            abrir(0);
-            addMsg("IA", "Banco de dados carregado! Selecionei a primeira questão para começarmos. Analise as alternativas.");
-            
-        } catch (error) {
-            status.innerText = "❌ Erro ao carregar banco do GitHub";
-            addMsg("Sistema", "Verifique se o arquivo banco_final.json está público no repositório.");
+            const resp = await fetch(GITHUB_URL);
+            dados = await resp.json();
+            document.getElementById('loading-overlay').style.display = 'none';
+            addMsg("IA", "Olá! Sou seu Mentor Estrategista. Para eu criar seu plano de estudo e selecionar as questões certas, me diga: **Qual cargo você pretende, qual a banca do concurso e quais matérias você quer focar hoje?**");
+        } catch (e) {
+            document.getElementById('load-status').innerText = "Erro ao carregar banco de dados.";
         }
     };
 
-    function abrir(idx) {
-        if(!dados[idx]) return;
-        atual = idx;
-        const q = dados[idx];
+    async function processarEntrada() {
+        const input = document.getElementById('user-msg');
+        const texto = input.value.trim();
+        if (!texto) return;
+
+        addMsg("Você", texto, "msg-user");
+        input.value = "";
+
+        if (fase === "ENTREVISTA") {
+            fase = "GERANDO_PLANO";
+            perfilUsuario.info = texto;
+            addMsg("IA", "Entendido. Estou analisando seu banco de questões e montando sua trilha de combate. Um momento...");
+            gerarPlano(texto);
+        } else {
+            chatIA(texto);
+        }
+    }
+
+    async function gerarPlano(info) {
+        try {
+            const prompt = `O usuário quer passar no concurso: ${info}. Analise que temos um banco de ${dados.length} questões. Crie um perfil de estudo para ele e diga que agora você vai sortear as questões baseadas nesse plano.`;
+            const resposta = await chamarIA(prompt);
+            addMsg("IA", resposta);
+            document.getElementById('plan-status').innerText = "PLANO ATIVO: " + info.toUpperCase().substring(0, 20) + "...";
+            fase = "SIMULADO";
+            sortearQuestao();
+        } catch (e) {
+            addMsg("Erro", "Falha ao gerar plano.");
+        }
+    }
+
+    function sortearQuestao() {
+        // IA escolhe uma questão aleatória do banco
+        atualIdx = Math.floor(Math.random() * dados.length);
+        const q = dados[atualIdx];
+        
+        document.getElementById('empty-state').style.display = 'none';
         document.getElementById('card').style.display = 'block';
-        document.getElementById('q-header').innerText = `${q.info || 'Questão'} | ID: ${q.id}`;
+        document.getElementById('q-header').innerText = `${q.info} | ID: ${q.id}`;
         document.getElementById('q-enunciado').innerHTML = q.htmlEnunciado || q.enunciado;
         
         const area = document.getElementById('q-alternativas');
@@ -109,59 +136,45 @@
                 
                 if(letras[i] === q.gabarito) {
                     btn.classList.add('correct');
-                    addMsg("IA", "<b>Resposta Correta!</b> Deseja que eu explique o fundamento jurídico/técnico desta questão?");
+                    addMsg("IA", "<b>Excelente!</b> Você acertou. Note como a banca cobrou esse conceito. Quer passar para a próxima ou prefere um comentário técnico?");
                 } else {
                     btn.classList.add('wrong');
                     todas.forEach(o => { if(o.querySelector('.letra').innerText === q.gabarito) o.classList.add('correct'); });
-                    chatIA(`O usuário marcou ${letras[i]}, mas a correta era ${q.gabarito}. Faça o Raio-X desta questão.`);
+                    chatIA(`O usuário ERROU ao marcar ${letras[i]} na questão ID ${q.id}. Explique a pegadinha e force o plano de estudo.`);
                 }
             };
             area.appendChild(btn);
         });
-        document.getElementById('counter').innerText = `${idx + 1} / ${dados.length}`;
-        window.scrollTo(0,0);
     }
 
     async function chatIA(comando) {
-        addMsg("Sistema", "IA analisando a questão...");
-        try {
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "llama3-8b-8192",
-                    messages: [
-                        {role: "system", content: "Você é um professor mentor de concursos. Explique o erro de forma didática."},
-                        {role: "user", content: `Questão: ${dados[atual].enunciado}. Contexto: ${comando}`}
-                    ]
-                })
-            });
-            const d = await r.json();
-            const win = document.getElementById('chat-window');
-            win.lastChild.remove(); // Remove o "IA analisando..."
-            addMsg("IA", d.choices[0].message.content);
-        } catch(e) {
-            addMsg("Erro", "Falha na conexão com a IA.");
+        const resposta = await chamarIA(`Contexto do Usuário: ${perfilUsuario.info}. Questão Atual: ${dados[atualIdx].enunciado}. Comando: ${comando}`);
+        addMsg("IA", resposta);
+        if(comando.toLowerCase().includes("próxima") || comando.toLowerCase().includes("proxima")) {
+            sortearQuestao();
         }
     }
 
-    function addMsg(autor, texto) {
+    async function chamarIA(prompt) {
+        const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile", // Modelo de alta performance solicitado
+                messages: [
+                    {role: "system", content: "Você é um Mentor de Concursos de Elite. Sua missão é guiar o aluno no plano de estudos dele. Se o aluno pedir a próxima questão, diga 'Ok, sorteando próxima...' e eu farei o sorteio no sistema."},
+                    {role: "user", content: prompt}
+                ]
+            })
+        });
+        const d = await r.json();
+        return d.choices[0].message.content;
+    }
+
+    function addMsg(autor, texto, classe = "msg-ai") {
         const win = document.getElementById('chat-window');
-        win.innerHTML += `<div class="msg msg-ai"><b>${autor}:</b><br>${texto}</div>`;
+        win.innerHTML += `<div class="msg ${classe}"><b>${autor}:</b><br>${texto}</div>`;
         win.scrollTop = win.scrollHeight;
-    }
-
-    function enviarMsg() {
-        const input = document.getElementById('user-msg');
-        if(!input.value) return;
-        addMsg("Você", input.value);
-        chatIA(input.value);
-        input.value = "";
-    }
-
-    function navegar(dir) {
-        let n = atual + dir;
-        if(n >= 0 && n < dados.length) abrir(n);
     }
 </script>
 </body>
