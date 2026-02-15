@@ -3,215 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estudo Focado - Minimalista Pro</title>
+    <title>Simulador de Combate - Inteligência de Banca</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); }
-        #config-trigger { position: fixed; top: 20px; right: 20px; z-index: 1001; background: white; border: 1px solid #e2e8f0; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 1.2rem; }
-        #config-panel { position: fixed; top: 70px; right: 20px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: none; flex-direction: column; gap: 10px; z-index: 1000; border: 1px solid #e2e8f0; }
-        .btn-action { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .input-search { padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; width: 200px; }
-        main { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
-        .container { max-width: 800px; width: 100%; background: white; padding: 50px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        #q-header { color: #94a3b8; font-size: 0.8rem; margin-bottom: 25px; font-weight: 600; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
-        .texto-associado-wrapper { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; margin-bottom: 30px; border-radius: 0 8px 8px 0; overflow: hidden; position: relative; }
-        #q-texto-assoc { padding: 20px; max-height: 100px; overflow: hidden; transition: max-height 0.4s ease; font-size: 1.05rem; color: #475569; line-height: 1.6; }
-        #q-texto-assoc.expandido { max-height: none; }
-        .btn-toggle-texto { width: 100%; padding: 8px; background: #f1f5f9; border: none; border-top: 1px solid #e2e8f0; color: var(--primary); font-weight: bold; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .html-render { font-size: 1.15rem; line-height: 1.7; color: #1e293b; }
-        .html-render img { display: block; max-width: 100%; margin: 25px auto; border-radius: 6px; }
-        .alternativas { margin-top: 35px; display: grid; gap: 12px; }
-        .opcao { display: flex; padding: 18px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; transition: 0.2s; align-items: center; }
-        .opcao:hover { border-color: var(--primary); background: #f0f7ff; }
-        .letra { min-width: 32px; height: 32px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 15px; color: var(--primary); }
-        .correct { border-color: #16a34a !important; background: #f0fdf4 !important; color: #16a34a; }
-        .wrong { border-color: #dc2626 !important; background: #fef2f2 !important; color: #dc2626; }
-        .footer-nav { margin-top: 50px; padding-top: 30px; border-top: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-        .nav-btn { background: #f1f5f9; color: #475569; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 700; }
-        .nav-btn:hover { background: var(--primary); color: white; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --ai-chat: #0f172a; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Layout */
+        #main-content { flex: 1; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+        #ai-sidebar { width: 350px; background: var(--ai-chat); color: white; display: flex; flex-direction: column; border-left: 1px solid #1e293b; }
+
+        /* Card de Questão */
+        .container { max-width: 800px; width: 100%; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        #q-header { color: #94a3b8; font-size: 0.8rem; margin-bottom: 20px; font-weight: 600; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        .html-render { font-size: 1.1rem; line-height: 1.6; }
+        .alternativas { margin-top: 25px; display: grid; gap: 10px; }
+        .opcao { display: flex; padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; transition: 0.2s; align-items: center; }
+        .letra { min-width: 30px; height: 30px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 12px; color: var(--primary); }
+        .correct { border-color: #16a34a !important; background: #f0fdf4 !important; }
+        .wrong { border-color: #dc2626 !important; background: #fef2f2 !important; }
+
+        /* Sidebar AI */
+        .ai-header { padding: 20px; background: #020617; border-bottom: 1px solid #1e293b; text-align: center; }
+        #avatar { width: 60px; height: 60px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 3px solid #3b82f6; }
+        #chat-window { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.9rem; line-height: 1.5; }
+        .msg { margin-bottom: 15px; padding: 10px; border-radius: 8px; }
+        .msg-ai { background: #1e293b; border-left: 3px solid var(--primary); }
+        .ai-input-area { padding: 15px; background: #020617; }
+        input[type="text"], select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 10px; }
+        
+        /* Config */
+        #config-btn { position: fixed; top: 10px; left: 10px; z-index: 100; cursor: pointer; background: white; border: 1px solid #ddd; border-radius: 50%; width: 35px; height: 35px; }
     </style>
 </head>
 <body>
 
-<button id="config-trigger" onclick="toggleConfig()">⚙️</button>
+<button id="config-btn" onclick="document.getElementById('config-modal').style.display='block'">⚙️</button>
 
-<div id="config-panel">
-    <button class="btn-action" onclick="document.getElementById('file-in').click()">CARREGAR NOVO JSON</button>
-    <input type="file" id="file-in" accept=".json" style="display:none">
-    <input type="text" id="search" class="input-search" placeholder="Buscar ID e dar Enter" onkeyup="buscar(event)">
-    <div id="status" style="font-size: 10px; color: #94a3b8; text-align: center;">💾 Banco Offline Pronto</div>
+<div id="config-modal" style="display:none; position:fixed; z-index:200; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+    <div style="background:white; margin:10% auto; padding:20px; width:300px; border-radius:10px;">
+        <h3>Configurações</h3>
+        <label>Chave API Groq:</label>
+        <input type="password" id="groq-key" placeholder="Cole sua chave aqui" style="color: black; background: #eee;">
+        <button onclick="salvarConfig()" style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:5px;">Salvar</button>
+        <hr>
+        <button onclick="document.getElementById('file-in').click()" style="width:100%; padding:10px;">Importar JSON</button>
+        <input type="file" id="file-in" style="display:none">
+        <button onclick="document.getElementById('config-modal').style.display='none'" style="margin-top:10px; width:100%;">Fechar</button>
+    </div>
 </div>
 
-<main>
-    <div id="welcome" style="margin-top: 20vh; text-align: center; color: #94a3b8;">
-        <h1>Acervo de Questões</h1>
-        <p>Carregue seu banco uma única vez.</p>
+<main id="main-content">
+    <div id="welcome" style="text-align:center; margin-top:100px;">
+        <h1>🛡️ Simulador de Banca</h1>
+        <p>Aguardando ordens da central de comando...</p>
     </div>
 
     <div id="card" class="container" style="display:none">
         <div id="q-header"></div>
-        <div id="wrapper-assoc" class="texto-associado-wrapper" style="display:none">
-            <div id="q-texto-assoc"></div>
-            <button class="btn-toggle-texto" onclick="toggleTexto()">
-                <span id="btn-icon">▼</span> <span id="btn-text">Ver texto completo</span>
-            </button>
-        </div>
         <div id="q-enunciado" class="html-render"></div>
         <div id="q-alternativas" class="alternativas"></div>
-        <div class="footer-nav">
-            <button class="nav-btn" onclick="navegar(-1)">← Anterior</button>
-            <span id="counter" style="font-weight: 700; font-size: 0.9rem;">0 / 0</span>
-            <button class="nav-btn" onclick="navegar(1)">Próxima →</button>
+        <div style="margin-top:30px; display:flex; justify-content:space-between;">
+            <button onclick="navegar(-1)" class="opcao" style="padding:10px 20px">Anterior</button>
+            <span id="counter">0/0</span>
+            <button onclick="navegar(1)" class="opcao" style="padding:10px 20px">Próxima</button>
         </div>
     </div>
 </main>
 
+<aside id="ai-sidebar">
+    <div class="ai-header">
+        <div id="avatar">🤖</div>
+        <div id="ai-status">MODO LIVRE</div>
+        <select id="perfil-select" onchange="mudarPerfil()">
+            <option value="livre">Personalidade: Livre</option>
+            <option value="banca">Personalidade: A Banca</option>
+        </select>
+    </div>
+    <div id="chat-window">
+        <div class="msg msg-ai">Olá! Sou seu estrategista. Carregue seu banco e me diga: qual banca ou cargo vamos enfrentar hoje?</div>
+    </div>
+    <div class="ai-input-area">
+        <input type="text" id="user-msg" placeholder="Comando para a IA..." onkeyup="if(e.key==='Enter') enviarMsg()">
+        <button onclick="enviarMsg()" style="width:100%; background:var(--primary); color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">Executar Raio-X</button>
+    </div>
+</aside>
+
 <script>
     let dados = [];
+    let historico = {}; // Salvará acertos/erros
     let atual = 0;
-    const DB_NAME = "EstudoDB";
-    const STORE_NAME = "questoes_store";
     let db;
+    const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-    // 1. INICIALIZA O BANCO DE DADOS
-    const request = indexedDB.open(DB_NAME, 2);
-
-    request.onupgradeneeded = (e) => {
-        let dbRes = e.target.result;
-        if (!dbRes.objectStoreNames.contains(STORE_NAME)) {
-            dbRes.createObjectStore(STORE_NAME);
-        }
-    };
-
-    request.onsuccess = (e) => {
+    // --- BANCO DE DADOS (IndexedDB) ---
+    const request = indexedDB.open("SimuladorDB", 3);
+    request.onupgradeneeded = e => {
         db = e.target.result;
-        carregarDoBanco();
+        if (!db.objectStoreNames.contains("questoes")) db.createObjectStore("questoes");
+        if (!db.objectStoreNames.contains("config")) db.createObjectStore("config");
+        if (!db.objectStoreNames.contains("historico")) db.createObjectStore("historico");
+    };
+    request.onsuccess = e => {
+        db = e.target.result;
+        carregarTudo();
     };
 
-    request.onerror = (e) => {
-        alert("Erro ao acessar banco local. Verifique se não está em aba anônima.");
-    };
-
-    // 2. FUNÇÃO PARA CARREGAR O QUE JÁ ESTÁ SALVO
-    function carregarDoBanco() {
-        const transaction = db.transaction([STORE_NAME], "readonly");
-        const store = transaction.objectStore(STORE_NAME);
-        const getRequest = store.get("data");
-
-        getRequest.onsuccess = () => {
-            if (getRequest.result) {
-                dados = getRequest.result;
-                document.getElementById('welcome').style.display = 'none';
-                abrir(0);
-                console.log("Banco carregado com sucesso!");
-            }
+    function carregarTudo() {
+        const tx = db.transaction(["questoes", "config", "historico"], "readonly");
+        tx.objectStore("questoes").get("data").onsuccess = e => {
+            if(e.target.result) { dados = e.target.result; document.getElementById('welcome').style.display='none'; abrir(0); }
+        };
+        tx.objectStore("config").get("groq_key").onsuccess = e => {
+            if(e.target.result) document.getElementById('groq-key').value = e.target.result;
+        };
+        tx.objectStore("historico").get("stats").onsuccess = e => {
+            if(e.target.result) historico = e.target.result;
         };
     }
 
-    // 3. FUNÇÃO PARA SALVAR O JSON NO BANCO
-    document.getElementById('file-in').onchange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            try {
-                const jsonContent = JSON.parse(ev.target.result);
-                const transaction = db.transaction([STORE_NAME], "readwrite");
-                const store = transaction.objectStore(STORE_NAME);
-                const putRequest = store.put(jsonContent, "data");
-
-                putRequest.onsuccess = () => {
-                    alert("Banco salvo com sucesso! Agora você pode fechar a página.");
-                    dados = jsonContent;
-                    document.getElementById('welcome').style.display = 'none';
-                    toggleConfig();
-                    abrir(0);
-                };
-                
-                putRequest.onerror = () => alert("Erro ao gravar no disco.");
-
-            } catch (err) {
-                alert("Erro ao ler o arquivo JSON.");
-            }
-        };
-        reader.readAsText(file);
-    };
-
-    // FUNÇÕES DE INTERFACE (IGUAIS ÀS ANTERIORES)
-    function toggleConfig() {
-        const p = document.getElementById('config-panel');
-        p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
-    }
-
-    function toggleTexto() {
-        const txt = document.getElementById('q-texto-assoc');
-        const btnText = document.getElementById('btn-text');
-        const btnIcon = document.getElementById('btn-icon');
-        if (txt.classList.contains('expandido')) {
-            txt.classList.remove('expandido');
-            btnText.innerText = "Ver texto completo"; btnIcon.innerText = "▼";
-        } else {
-            txt.classList.add('expandido');
-            btnText.innerText = "Recolher texto"; btnIcon.innerText = "▲";
-        }
-    }
-
+    // --- LOGICA DE QUESTÕES ---
     function abrir(idx) {
-        if (dados.length === 0) return;
+        if (!dados[idx]) return;
         atual = idx;
         const q = dados[idx];
         document.getElementById('card').style.display = 'block';
-        document.getElementById('q-header').innerText = `${q.info} | ${q.codigo || q.id}`;
-        const wrapperAssoc = document.getElementById('wrapper-assoc');
-        const areaAssoc = document.getElementById('q-texto-assoc');
-        let htmlAssoc = q.htmlTextoAssociado || q.txtAssoc;
-        if (htmlAssoc && htmlAssoc.trim().length > 5) {
-            wrapperAssoc.style.display = 'block';
-            areaAssoc.innerHTML = htmlAssoc;
-            areaAssoc.classList.remove('expandido');
-            document.getElementById('btn-text').innerText = "Ver texto completo";
-            document.getElementById('btn-icon').innerText = "▼";
-        } else { wrapperAssoc.style.display = 'none'; }
+        document.getElementById('q-header').innerText = `${q.info} | ID: ${q.id}`;
         document.getElementById('q-enunciado').innerHTML = q.htmlEnunciado || q.enunciado;
-        const altArea = document.getElementById('q-alternativas');
-        altArea.innerHTML = '';
+        
+        const area = document.getElementById('q-alternativas');
+        area.innerHTML = '';
         const letras = ['A', 'B', 'C', 'D', 'E'];
-        q.alts.forEach((texto, i) => {
-            const div = document.createElement('div');
-            div.className = 'opcao';
-            let imgs = "";
-            if(q.imgsAlternativas && q.imgsAlternativas[i]) {
-                q.imgsAlternativas[i].forEach(url => imgs += `<img src="${url}" style="display:block; max-width:100%; margin-top:10px;">`);
-            }
-            div.innerHTML = `<div class="letra">${letras[i]}</div><div style="flex:1">${texto}${imgs}</div>`;
-            div.onclick = () => {
-                const todas = altArea.querySelectorAll('.opcao');
-                todas.forEach(o => o.style.pointerEvents = 'none');
-                if(letras[i] === q.gabarito) div.classList.add('correct');
-                else {
-                    div.classList.add('wrong');
-                    todas.forEach(o => { if(o.querySelector('.letra').innerText === q.gabarito) o.classList.add('correct'); });
-                }
-            };
-            altArea.appendChild(div);
+        
+        q.alts.forEach((alt, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'opcao';
+            btn.innerHTML = `<div class="letra">${letras[i]}</div><div style="flex:1">${alt}</div>`;
+            btn.onclick = () => validar(letras[i], q.gabarito, btn);
+            area.appendChild(btn);
         });
         document.getElementById('counter').innerText = `${idx + 1} / ${dados.length}`;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function navegar(p) {
-        let n = atual + p;
-        if(n >= 0 && n < dados.length) abrir(n);
-    }
+    function validar(escolha, correta, elemento) {
+        const acerto = escolha === correta;
+        const qAtual = dados[atual];
+        
+        // Registrar Estatística
+        historico[qAtual.id] = { acerto: acerto, data: new Date().toISOString() };
+        const tx = db.transaction("historico", "readwrite");
+        tx.objectStore("historico").put(historico, "stats");
 
-    function buscar(e) {
-        if (e.key === "Enter") {
-            const val = document.getElementById('search').value.trim();
-            const idx = dados.findIndex(q => q.id == val || (q.codigo && q.codigo.includes(val)));
-            if (idx !== -1) { abrir(idx); toggleConfig(); document.getElementById('search').value = ""; }
-            else { alert("Questão não encontrada."); }
+        if(acerto) elemento.classList.add('correct');
+        else {
+            elemento.classList.add('wrong');
+            const opcoes = document.querySelectorAll('.opcao');
+            opcoes.forEach(o => { if(o.querySelector('.letra').innerText === correta) o.classList.add('correct'); });
         }
+        
+        // Chamar Raio-X da IA automaticamente no erro
+        if(!acerto) chatIA(`O usuário errou a questão ${qAtual.id}. Analise o estilo de cobrança deste assunto.`);
+    }
+
+    // --- INTEGRAÇÃO GROQ ---
+    async function chatIA(comando) {
+        const key = document.getElementById('groq-key').value;
+        if(!key) { alert("Configure a chave da Groq na engrenagem!"); return; }
+
+        const status = document.getElementById('ai-status').innerText;
+        const msgWindow = document.getElementById('chat-window');
+        
+        const promptSystem = status === "MODO BANCA" 
+            ? "Você é a banca examinadora. Seja rigoroso, analise a recorrência deste assunto e como você costuma 'armar armadilhas' conceituais. Use o banco de dados do usuário para testar os limites dele."
+            : "Você é um estrategista de concursos. Faça o Raio-X da questão, identifique o assunto e sugira o próximo passo de estudo.";
+
+        try {
+            const response = await fetch(GROQ_API_URL, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: "llama3-8b-8192",
+                    messages: [
+                        { role: "system", content: promptSystem },
+                        { role: "user", content: `Contexto do banco: ${JSON.stringify(dados[atual])}. Comando: ${comando}` }
+                    ]
+                })
+            });
+            const data = await response.json();
+            const resposta = data.choices[0].message.content;
+            
+            msgWindow.innerHTML += `<div class="msg msg-ai"><b>Avatar:</b><br>${resposta}</div>`;
+            msgWindow.scrollTop = msgWindow.scrollHeight;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function enviarMsg() {
+        const msg = document.getElementById('user-msg').value;
+        if(!msg) return;
+        document.getElementById('chat-window').innerHTML += `<div class="msg" style="text-align:right"><i>${msg}</i></div>`;
+        chatIA(msg);
+        document.getElementById('user-msg').value = "";
+    }
+
+    function mudarPerfil() {
+        const p = document.getElementById('perfil-select').value;
+        const avatar = document.getElementById('avatar');
+        const status = document.getElementById('ai-status');
+        
+        if(p === 'banca') {
+            avatar.innerText = "🏛️";
+            status.innerText = "MODO BANCA";
+            avatar.style.borderColor = "#dc2626";
+        } else {
+            avatar.innerText = "🤖";
+            status.innerText = "MODO LIVRE";
+            avatar.style.borderColor = "#3b82f6";
+        }
+    }
+
+    // --- CONFIGURAÇÕES ---
+    function salvarConfig() {
+        const key = document.getElementById('groq-key').value;
+        const tx = db.transaction("config", "readwrite");
+        tx.objectStore("config").put(key, "groq_key");
+        document.getElementById('config-modal').style.display='none';
+    }
+
+    document.getElementById('file-in').onchange = e => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            dados = JSON.parse(ev.target.result);
+            const tx = db.transaction("questoes", "readwrite");
+            tx.objectStore("questoes").put(dados, "data");
+            location.reload();
+        };
+        reader.readAsText(e.target.files[0]);
+    };
+
+    function navegar(dir) {
+        let n = atual + dir;
+        if(n >= 0 && n < dados.length) abrir(n);
     }
 </script>
 </body>
