@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Combate - IA Ativa</title>
+    <title>Simulador IA - Piloto Automático</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --ai-chat: #0f172a; }
@@ -28,11 +28,9 @@
 <body>
 
 <main id="main-content">
-    <div id="welcome" style="text-align:center; margin-top:100px;">
-        <h1>🛡️ Simulador de Banca</h1>
-        <p>Carregue o JSON para começar.</p>
-        <button onclick="document.getElementById('file-in').click()" style="padding:15px 30px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">CARREGAR BANCO DE DADOS</button>
-        <input type="file" id="file-in" style="display:none">
+    <div id="loading-screen" style="text-align:center; margin-top:20vh;">
+        <h2 id="status-text">Conectando ao Banco de Dados...</h2>
+        <div style="color: #64748b;">A IA está preparando sua sessão de estudos.</div>
     </div>
 
     <div id="card" class="container" style="display:none">
@@ -50,39 +48,42 @@
 <aside id="ai-sidebar">
     <div class="ai-header">
         <div id="avatar">🤖</div>
-        <select id="perfil-select" onchange="mudarPerfil()" style="background:#0f172a; color:white; border:1px solid #334155; padding:5px; width:100%; border-radius:5px;">
-            <option value="livre">Modo: Estrategista</option>
-            <option value="banca">Modo: A Própria Banca</option>
-        </select>
+        <div style="font-weight: bold; margin-bottom: 5px;">IA ESTRATEGISTA</div>
     </div>
     <div id="chat-window">
-        <div class="msg msg-ai"><b>Sistema:</b> Pronto para o Raio-X. Selecione uma resposta ou digite algo abaixo.</div>
+        <div class="msg msg-ai"><b>Sistema:</b> Aguardando carregamento dos dados...</div>
     </div>
     <div class="ai-input-area">
-        <input type="text" id="user-msg" placeholder="Pergunte à IA..." onkeyup="if(event.key==='Enter') enviarMsg()">
+        <input type="text" id="user-msg" placeholder="Dúvida sobre a questão?" onkeyup="if(event.key==='Enter') enviarMsg()">
     </div>
 </aside>
 
 <script>
+    // Chave Groq e Link do seu GitHub
     const apiKey = "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";
+    const GITHUB_JSON_URL = "https://raw.githubusercontent.com/questaogabaritada-hue/meu-banco-questoes/main/banco_final.json";
+    
     let dados = [];
     let atual = 0;
 
-    // Carregar dados salvos ao abrir
-    const request = indexedDB.open("SimuladorDB", 6);
-    request.onupgradeneeded = e => {
-        let db = e.target.result;
-        if (!db.objectStoreNames.contains("questoes")) db.createObjectStore("questoes");
-    };
-    request.onsuccess = e => {
-        let db = e.target.result;
-        db.transaction("questoes").objectStore("questoes").get("data").onsuccess = ev => {
-            if(ev.target.result) { 
-                dados = ev.target.result; 
-                document.getElementById('welcome').style.display='none'; 
-                abrir(0); 
-            }
-        };
+    // Função que roda assim que a página abre
+    window.onload = async () => {
+        const status = document.getElementById('status-text');
+        try {
+            const response = await fetch(GITHUB_JSON_URL);
+            if (!response.ok) throw new Error("Erro ao baixar arquivo");
+            
+            dados = await response.json();
+            
+            // IA seleciona a primeira questão automaticamente
+            document.getElementById('loading-screen').style.display = 'none';
+            abrir(0);
+            addMsg("IA", "Banco de dados carregado! Selecionei a primeira questão para começarmos. Analise as alternativas.");
+            
+        } catch (error) {
+            status.innerText = "❌ Erro ao carregar banco do GitHub";
+            addMsg("Sistema", "Verifique se o arquivo banco_final.json está público no repositório.");
+        }
     };
 
     function abrir(idx) {
@@ -90,61 +91,57 @@
         atual = idx;
         const q = dados[idx];
         document.getElementById('card').style.display = 'block';
-        document.getElementById('q-header').innerText = q.info || "Questão";
+        document.getElementById('q-header').innerText = `${q.info || 'Questão'} | ID: ${q.id}`;
         document.getElementById('q-enunciado').innerHTML = q.htmlEnunciado || q.enunciado;
+        
         const area = document.getElementById('q-alternativas');
         area.innerHTML = '';
-        ['A','B','C','D','E'].forEach((l, i) => {
-            if(!q.alts[i]) return;
+        const letras = ['A','B','C','D','E'];
+        
+        q.alts.forEach((texto, i) => {
+            if(!texto) return;
             const btn = document.createElement('div');
             btn.className = 'opcao';
-            btn.innerHTML = `<div class="letra">${l}</div><div style="flex:1">${q.alts[i]}</div>`;
+            btn.innerHTML = `<div class="letra">${letras[i]}</div><div style="flex:1">${texto}</div>`;
             btn.onclick = () => {
                 const todas = area.querySelectorAll('.opcao');
                 todas.forEach(o => o.style.pointerEvents = 'none');
-                if(l === q.gabarito) {
+                
+                if(letras[i] === q.gabarito) {
                     btn.classList.add('correct');
-                    addMsg("AI", "Excelente acerto! Quer que eu aprofunde o 'Raio-X' deste tema?");
+                    addMsg("IA", "<b>Resposta Correta!</b> Deseja que eu explique o fundamento jurídico/técnico desta questão?");
                 } else {
                     btn.classList.add('wrong');
                     todas.forEach(o => { if(o.querySelector('.letra').innerText === q.gabarito) o.classList.add('correct'); });
-                    chatIA(`O usuário errou a questão ID: ${q.id}. Explique o assunto focado na banca e o motivo da pegadinha.`);
+                    chatIA(`O usuário marcou ${letras[i]}, mas a correta era ${q.gabarito}. Faça o Raio-X desta questão.`);
                 }
             };
             area.appendChild(btn);
         });
         document.getElementById('counter').innerText = `${idx + 1} / ${dados.length}`;
+        window.scrollTo(0,0);
     }
 
     async function chatIA(comando) {
-        const win = document.getElementById('chat-window');
-        const modo = document.getElementById('perfil-select').value;
-        addMsg("Sistema", "Processando Raio-X...");
-
-        const systemPrompt = modo === "banca" 
-            ? "Você é a banca examinadora. Seja direto, técnico e focado em como o assunto é cobrado em provas reais." 
-            : "Você é um mentor de concursos. Analise o erro e explique o conceito de forma simples e estratégica.";
-
+        addMsg("Sistema", "IA analisando a questão...");
         try {
             const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    model: "llama3-8b-8192", // Modelo mais leve para garantir resposta
+                    model: "llama3-8b-8192",
                     messages: [
-                        {role: "system", content: systemPrompt},
-                        {role: "user", content: `Questão: ${dados[atual].enunciado}. Comando: ${comando}`}
+                        {role: "system", content: "Você é um professor mentor de concursos. Explique o erro de forma didática."},
+                        {role: "user", content: `Questão: ${dados[atual].enunciado}. Contexto: ${comando}`}
                     ]
                 })
             });
             const d = await r.json();
-            const resposta = d.choices[0].message.content;
-            
-            // Remove a mensagem de "Processando" e coloca a real
-            win.lastChild.remove();
-            addMsg("IA", resposta);
-        } catch(e) { 
-            win.lastChild.innerHTML = "<b>Erro:</b> Não consegui conectar à Groq. Verifique sua internet.";
+            const win = document.getElementById('chat-window');
+            win.lastChild.remove(); // Remove o "IA analisando..."
+            addMsg("IA", d.choices[0].message.content);
+        } catch(e) {
+            addMsg("Erro", "Falha na conexão com a IA.");
         }
     }
 
@@ -166,26 +163,6 @@
         let n = atual + dir;
         if(n >= 0 && n < dados.length) abrir(n);
     }
-
-    function mudarPerfil() {
-        const p = document.getElementById('perfil-select').value;
-        document.getElementById('avatar').innerText = p === 'banca' ? "🏛️" : "🤖";
-        addMsg("Sistema", `Modo alterado para: ${p.toUpperCase()}`);
-    }
-
-    document.getElementById('file-in').onchange = e => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            dados = JSON.parse(ev.target.result);
-            const dbReq = indexedDB.open("SimuladorDB", 6);
-            dbReq.onsuccess = () => {
-                const tx = dbReq.result.transaction("questoes", "readwrite");
-                tx.objectStore("questoes").put(dados, "data");
-                location.reload();
-            };
-        };
-        reader.readAsText(e.target.files[0]);
-    };
 </script>
 </body>
 </html>
