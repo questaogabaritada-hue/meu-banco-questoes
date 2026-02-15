@@ -40,13 +40,13 @@
     <button class="btn-action" onclick="document.getElementById('file-in').click()">CARREGAR NOVO JSON</button>
     <input type="file" id="file-in" accept=".json" style="display:none">
     <input type="text" id="search" class="input-search" placeholder="Buscar ID e dar Enter" onkeyup="buscar(event)">
-    <div id="status" style="font-size: 10px; color: #94a3b8; text-align: center;">Banco salvo localmente</div>
+    <div id="status" style="font-size: 10px; color: #94a3b8; text-align: center;">💾 Banco Offline Pronto</div>
 </div>
 
 <main>
     <div id="welcome" style="margin-top: 20vh; text-align: center; color: #94a3b8;">
         <h1>Acervo de Questões</h1>
-        <p>Carregue o banco uma vez na engrenagem. Ele ficará salvo aqui!</p>
+        <p>Carregue seu banco uma única vez.</p>
     </div>
 
     <div id="card" class="container" style="display:none">
@@ -70,30 +70,75 @@
 <script>
     let dados = [];
     let atual = 0;
-    const DB_NAME = "MeuBancoQuestoes";
-    const DB_VERSION = 1;
-    const STORE_NAME = "questoes";
+    const DB_NAME = "EstudoDB";
+    const STORE_NAME = "questoes_store";
+    let db;
 
-    // INICIALIZA O BANCO DE DADOS DO NAVEGADOR (IndexedDB)
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    // 1. INICIALIZA O BANCO DE DADOS
+    const request = indexedDB.open(DB_NAME, 2);
+
     request.onupgradeneeded = (e) => {
-        const db = e.target.result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
+        let dbRes = e.target.result;
+        if (!dbRes.objectStoreNames.contains(STORE_NAME)) {
+            dbRes.createObjectStore(STORE_NAME);
+        }
     };
+
     request.onsuccess = (e) => {
-        const db = e.target.result;
-        const transaction = db.transaction(STORE_NAME, "readonly");
+        db = e.target.result;
+        carregarDoBanco();
+    };
+
+    request.onerror = (e) => {
+        alert("Erro ao acessar banco local. Verifique se não está em aba anônima.");
+    };
+
+    // 2. FUNÇÃO PARA CARREGAR O QUE JÁ ESTÁ SALVO
+    function carregarDoBanco() {
+        const transaction = db.transaction([STORE_NAME], "readonly");
         const store = transaction.objectStore(STORE_NAME);
-        const getReq = store.get("lista_questoes");
-        getReq.onsuccess = () => {
-            if (getReq.result) {
-                dados = getReq.result;
+        const getRequest = store.get("data");
+
+        getRequest.onsuccess = () => {
+            if (getRequest.result) {
+                dados = getRequest.result;
                 document.getElementById('welcome').style.display = 'none';
                 abrir(0);
+                console.log("Banco carregado com sucesso!");
             }
         };
+    }
+
+    // 3. FUNÇÃO PARA SALVAR O JSON NO BANCO
+    document.getElementById('file-in').onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const jsonContent = JSON.parse(ev.target.result);
+                const transaction = db.transaction([STORE_NAME], "readwrite");
+                const store = transaction.objectStore(STORE_NAME);
+                const putRequest = store.put(jsonContent, "data");
+
+                putRequest.onsuccess = () => {
+                    alert("Banco salvo com sucesso! Agora você pode fechar a página.");
+                    dados = jsonContent;
+                    document.getElementById('welcome').style.display = 'none';
+                    toggleConfig();
+                    abrir(0);
+                };
+                
+                putRequest.onerror = () => alert("Erro ao gravar no disco.");
+
+            } catch (err) {
+                alert("Erro ao ler o arquivo JSON.");
+            }
+        };
+        reader.readAsText(file);
     };
 
+    // FUNÇÕES DE INTERFACE (IGUAIS ÀS ANTERIORES)
     function toggleConfig() {
         const p = document.getElementById('config-panel');
         p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
@@ -111,23 +156,6 @@
             btnText.innerText = "Recolher texto"; btnIcon.innerText = "▲";
         }
     }
-
-    document.getElementById('file-in').onchange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            dados = JSON.parse(ev.target.result);
-            // SALVA NO NAVEGADOR PARA SEMPRE
-            const db = request.result;
-            const transaction = db.transaction(STORE_NAME, "readwrite");
-            transaction.objectStore(STORE_NAME).put(dados, "lista_questoes");
-            document.getElementById('welcome').style.display = 'none';
-            toggleConfig();
-            abrir(0);
-        };
-        reader.readAsText(file);
-    };
 
     function abrir(idx) {
         if (dados.length === 0) return;
@@ -182,7 +210,7 @@
             const val = document.getElementById('search').value.trim();
             const idx = dados.findIndex(q => q.id == val || (q.codigo && q.codigo.includes(val)));
             if (idx !== -1) { abrir(idx); toggleConfig(); document.getElementById('search').value = ""; }
-            else { alert("Questão não encontrada no banco."); }
+            else { alert("Questão não encontrada."); }
         }
     }
 </script>
