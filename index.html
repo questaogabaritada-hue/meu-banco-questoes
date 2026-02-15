@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudo Focado - Minimalista Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
+        
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+
+        /* CONFIGURAÇÃO (ENGRENAGEM) */
+        #config-trigger {
+            position: fixed; top: 20px; right: 20px; z-index: 1001;
+            background: white; border: 1px solid #e2e8f0; width: 40px; height: 40px;
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 1.2rem;
+        }
+
+        #config-panel {
+            position: fixed; top: 70px; right: 20px; background: white; padding: 20px;
+            border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none; flex-direction: column; gap: 10px; z-index: 1000; border: 1px solid #e2e8f0;
+        }
+
+        .btn-action { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .input-search { padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; width: 200px; }
+
+        /* CONTEÚDO CENTRAL */
+        main { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+
+        .container { 
+            max-width: 800px; width: 100%; background: white; padding: 50px; 
+            border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+
+        #q-header { color: #94a3b8; font-size: 0.8rem; margin-bottom: 25px; font-weight: 600; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+
+        /* TEXTO ASSOCIADO RETRÁTIL (ESTILO QCONCURSOS) */
+        .texto-associado-wrapper { 
+            background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; 
+            margin-bottom: 30px; border-radius: 0 8px 8px 0; overflow: hidden; position: relative;
+        }
+        
+        #q-texto-assoc { 
+            padding: 20px; max-height: 100px; overflow: hidden; transition: max-height 0.4s ease; 
+            font-size: 1.05rem; color: #475569; line-height: 1.6;
+        }
+
+        #q-texto-assoc.expandido { max-height: none; }
+
+        .btn-toggle-texto { 
+            width: 100%; padding: 8px; background: #f1f5f9; border: none; border-top: 1px solid #e2e8f0;
+            color: var(--primary); font-weight: bold; cursor: pointer; font-size: 0.8rem;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+
+        /* ENUNCIADO E IMAGENS */
+        .html-render { font-size: 1.15rem; line-height: 1.7; color: #1e293b; }
+        .html-render img { display: block; max-width: 100%; margin: 25px auto; border-radius: 6px; }
+
+        /* ALTERNATIVAS */
+        .alternativas { margin-top: 35px; display: grid; gap: 12px; }
+        .opcao { display: flex; padding: 18px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; transition: 0.2s; align-items: center; }
+        .opcao:hover { border-color: var(--primary); background: #f0f7ff; }
+        .letra { min-width: 32px; height: 32px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 15px; color: var(--primary); }
+        .correct { border-color: #16a34a !important; background: #f0fdf4 !important; color: #16a34a; }
+        .wrong { border-color: #dc2626 !important; background: #fef2f2 !important; color: #dc2626; }
+
+        /* NAVEGAÇÃO */
+        .footer-nav { 
+            margin-top: 50px; padding-top: 30px; border-top: 2px solid #f1f5f9;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-btn { background: #f1f5f9; color: #475569; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+        .nav-btn:hover { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+
+<button id="config-trigger" onclick="toggleConfig()">⚙️</button>
+
+<div id="config-panel">
+    <button class="btn-action" onclick="document.getElementById('file-in').click()">Abrir Banco (.JSON)</button>
+    <input type="file" id="file-in" accept=".json" style="display:none">
+    <input type="text" id="search" class="input-search" placeholder="Buscar ID e dar Enter" onkeyup="buscar(event)">
+    <div id="status" style="font-size: 10px; color: #94a3b8; text-align: center;">Nenhum arquivo</div>
+</div>
+
+<main>
+    <div id="welcome" style="margin-top: 20vh; text-align: center; color: #94a3b8;">
+        <h1>Acervo de Questões</h1>
+        <p>Use a engrenagem para carregar seu arquivo.</p>
+    </div>
+
+    <div id="card" class="container" style="display:none">
+        <div id="q-header"></div>
+        
+        <div id="wrapper-assoc" class="texto-associado-wrapper" style="display:none">
+            <div id="q-texto-assoc"></div>
+            <button class="btn-toggle-texto" onclick="toggleTexto()">
+                <span id="btn-icon">▼</span> <span id="btn-text">Ver texto completo</span>
+            </button>
+        </div>
+
+        <div id="q-enunciado" class="html-render"></div>
+        <div id="q-alternativas" class="alternativas"></div>
+
+        <div class="footer-nav">
+            <button class="nav-btn" onclick="navegar(-1)">← Anterior</button>
+            <span id="counter" style="font-weight: 700; font-size: 0.9rem;">0 / 0</span>
+            <button class="nav-btn" onclick="navegar(1)">Próxima →</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    let dados = [];
+    let atual = 0;
+
+    function toggleConfig() {
+        const p = document.getElementById('config-panel');
+        p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    // Função para expandir/recolher o texto associado
+    function toggleTexto() {
+        const txt = document.getElementById('q-texto-assoc');
+        const btnText = document.getElementById('btn-text');
+        const btnIcon = document.getElementById('btn-icon');
+        
+        if (txt.classList.contains('expandido')) {
+            txt.classList.remove('expandido');
+            btnText.innerText = "Ver texto completo";
+            btnIcon.innerText = "▼";
+        } else {
+            txt.classList.add('expandido');
+            btnText.innerText = "Recolher texto";
+            btnIcon.innerText = "▲";
+        }
+    }
+
+    document.getElementById('file-in').onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            dados = JSON.parse(ev.target.result);
+            document.getElementById('welcome').style.display = 'none';
+            document.getElementById('status').innerText = file.name;
+            toggleConfig();
+            abrir(0);
+        };
+        reader.readAsText(file);
+    };
+
+    function abrir(idx) {
+        if (dados.length === 0) return;
+        atual = idx;
+        const q = dados[idx];
+        document.getElementById('card').style.display = 'block';
+        document.getElementById('q-header').innerText = `${q.info} | ${q.codigo}`;
+
+        // Lógica do Texto Associado
+        const wrapperAssoc = document.getElementById('wrapper-assoc');
+        const areaAssoc = document.getElementById('q-texto-assoc');
+        let htmlAssoc = q.htmlTextoAssociado || q.txtAssoc;
+        
+        if (htmlAssoc && htmlAssoc.trim().length > 5) {
+            wrapperAssoc.style.display = 'block';
+            areaAssoc.innerHTML = htmlAssoc;
+            // Resetar para estado minimizado ao mudar de questão
+            areaAssoc.classList.remove('expandido');
+            document.getElementById('btn-text').innerText = "Ver texto completo";
+            document.getElementById('btn-icon').innerText = "▼";
+        } else {
+            wrapperAssoc.style.display = 'none';
+        }
+
+        document.getElementById('q-enunciado').innerHTML = q.htmlEnunciado || q.enunciado;
+
+        const altArea = document.getElementById('q-alternativas');
+        altArea.innerHTML = '';
+        const letras = ['A', 'B', 'C', 'D', 'E'];
+        q.alts.forEach((texto, i) => {
+            const div = document.createElement('div');
+            div.className = 'opcao';
+            let imgs = "";
+            if(q.imgsAlternativas && q.imgsAlternativas[i]) {
+                q.imgsAlternativas[i].forEach(url => imgs += `<img src="${url}" style="display:block; max-width:100%; margin-top:10px;">`);
+            }
+            div.innerHTML = `<div class="letra">${letras[i]}</div><div style="flex:1">${texto}${imgs}</div>`;
+            div.onclick = () => {
+                const todas = altArea.querySelectorAll('.opcao');
+                todas.forEach(o => o.style.pointerEvents = 'none');
+                if(letras[i] === q.gabarito) div.classList.add('correct');
+                else {
+                    div.classList.add('wrong');
+                    todas.forEach(o => { if(o.querySelector('.letra').innerText === q.gabarito) o.classList.add('correct'); });
+                }
+            };
+            altArea.appendChild(div);
+        });
+
+        document.getElementById('counter').innerText = `${idx + 1} / ${dados.length}`;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function navegar(p) {
+        let n = atual + p;
+        if(n >= 0 && n < dados.length) abrir(n);
+    }
+
+    function buscar(e) {
+        if (e.key === "Enter") {
+            const val = document.getElementById('search').value.replace(/\D/g, "");
+            const idx = dados.findIndex(q => q.id === val);
+            if (idx !== -1) {
+                abrir(idx);
+                toggleConfig();
+                document.getElementById('search').value = "";
+            } else { alert("Não encontrado."); }
+        }
+    }
+</script>
+</body>
+</html>
