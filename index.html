@@ -8,59 +8,36 @@
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --ai-chat: #0f172a; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-        
         #main-content { flex: 1; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
         #ai-sidebar { width: 350px; background: var(--ai-chat); color: white; display: flex; flex-direction: column; border-left: 1px solid #1e293b; }
-
         .container { max-width: 800px; width: 100%; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        #q-header { color: #94a3b8; font-size: 0.8rem; margin-bottom: 20px; font-weight: 600; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
-        .html-render { font-size: 1.1rem; line-height: 1.6; }
-        .alternativas { margin-top: 25px; display: grid; gap: 10px; }
-        .opcao { display: flex; padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; transition: 0.2s; align-items: center; }
+        .opcao { display: flex; padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; transition: 0.2s; align-items: center; margin-bottom: 10px; }
         .letra { min-width: 30px; height: 30px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 12px; color: var(--primary); }
         .correct { border-color: #16a34a !important; background: #f0fdf4 !important; }
         .wrong { border-color: #dc2626 !important; background: #fef2f2 !important; }
-
         .ai-header { padding: 20px; background: #020617; border-bottom: 1px solid #1e293b; text-align: center; }
         #avatar { width: 60px; height: 60px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 3px solid #3b82f6; }
         #chat-window { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.85rem; line-height: 1.5; }
         .msg { margin-bottom: 15px; padding: 10px; border-radius: 8px; }
         .msg-ai { background: #1e293b; border-left: 3px solid var(--primary); }
         .ai-input-area { padding: 15px; background: #020617; }
-        input[type="text"], select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 10px; box-sizing: border-box; }
-        
-        #config-btn { position: fixed; top: 10px; left: 10px; z-index: 100; cursor: pointer; background: white; border: 1px solid #ddd; border-radius: 50%; width: 35px; height: 35px; }
+        input[type="text"] { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<button id="config-btn" onclick="document.getElementById('config-modal').style.display='block'">⚙️</button>
-
-<div id="config-modal" style="display:none; position:fixed; z-index:200; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-    <div style="background:white; margin:10% auto; padding:20px; width:300px; border-radius:10px;">
-        <h3>Central de Dados</h3>
-        <p style="font-size: 12px; color: #666;">A chave Groq já está integrada no sistema.</p>
-        <button onclick="document.getElementById('file-in').click()" style="width:100%; padding:10px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer;">Importar Banco JSON</button>
-        <input type="file" id="file-in" style="display:none">
-        <button onclick="document.getElementById('config-modal').style.display='none'" style="margin-top:10px; width:100%;">Fechar</button>
-    </div>
-</div>
-
 <main id="main-content">
     <div id="welcome" style="text-align:center; margin-top:100px;">
         <h1>🛡️ Simulador de Banca</h1>
-        <p>Aguardando ordens da central de comando...</p>
+        <p>Carregue o JSON na engrenagem lateral para ativar a IA.</p>
+        <button onclick="document.getElementById('file-in').click()" style="padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer;">Carregar Banco de Dados</button>
+        <input type="file" id="file-in" style="display:none">
     </div>
 
     <div id="card" class="container" style="display:none">
-        <div id="q-header"></div>
-        <div id="q-enunciado" class="html-render"></div>
-        <div id="q-alternativas" class="alternativas"></div>
-        <div style="margin-top:30px; display:flex; justify-content:space-between; align-items: center;">
-            <button onclick="navegar(-1)" class="nav-btn" style="padding:10px 20px; cursor: pointer;">← Anterior</button>
-            <span id="counter" style="font-weight: bold;">0/0</span>
-            <button onclick="navegar(1)" class="nav-btn" style="padding:10px 20px; cursor: pointer;">Próxima →</button>
-        </div>
+        <div id="q-header" style="color:#94a3b8; font-size:0.8rem; margin-bottom:20px;"></div>
+        <div id="q-enunciado" style="font-size:1.1rem; line-height:1.6;"></div>
+        <div id="q-alternativas" style="margin-top:25px;"></div>
     </div>
 </main>
 
@@ -68,159 +45,85 @@
     <div class="ai-header">
         <div id="avatar">🤖</div>
         <div id="ai-status">MODO LIVRE</div>
-        <select id="perfil-select" onchange="mudarPerfil()">
-            <option value="livre">Personalidade: Estrategista Livre</option>
-            <option value="banca">Personalidade: A Própria Banca</option>
-        </select>
     </div>
     <div id="chat-window">
-        <div class="msg msg-ai">Olá! Estou pronto para o Raio-X. Carregue seu banco e me dê ordens. Eu analisarei seu desempenho e as armadilhas da banca.</div>
+        <div class="msg msg-ai">Olá! Carregue seu banco e eu farei o Raio-X das questões para você.</div>
     </div>
     <div class="ai-input-area">
-        <input type="text" id="user-msg" placeholder="Diga o que você quer saber..." onkeyup="if(event.key==='Enter') enviarMsg()">
-        <button onclick="enviarMsg()" style="width:100%; background:var(--primary); color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">Enviar para IA</button>
+        <input type="text" id="user-msg" placeholder="Pergunte algo à banca..." onkeyup="if(event.key==='Enter') enviarMsg()">
     </div>
 </aside>
 
 <script>
-    // CHAVE API GROQ INTEGRADA DIRETAMENTE
     const apiKey = "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";
-    const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-
     let dados = [];
-    let historico = {}; 
     let atual = 0;
-    let db;
 
-    // INICIALIZAÇÃO DO BANCO LOCAL (INDEXEDDB)
-    const request = indexedDB.open("SimuladorDB", 4);
-    request.onupgradeneeded = e => {
-        db = e.target.result;
-        if (!db.objectStoreNames.contains("questoes")) db.createObjectStore("questoes");
-        if (!db.objectStoreNames.contains("historico")) db.createObjectStore("historico");
-    };
+    // Conexão com Banco de Dados do Navegador
+    const request = indexedDB.open("SimuladorDB", 5);
     request.onsuccess = e => {
-        db = e.target.result;
-        carregarDados();
+        let db = e.target.result;
+        let tx = db.transaction("questoes", "readonly");
+        tx.objectStore("questoes").get("data").onsuccess = ev => {
+            if(ev.target.result) { dados = ev.target.result; document.getElementById('welcome').style.display='none'; abrir(0); }
+        };
     };
-
-    function carregarDados() {
-        const tx = db.transaction(["questoes", "historico"], "readonly");
-        tx.objectStore("questoes").get("data").onsuccess = e => {
-            if(e.target.result) { 
-                dados = e.target.result; 
-                document.getElementById('welcome').style.display='none'; 
-                abrir(0); 
-            }
-        };
-        tx.objectStore("historico").get("stats").onsuccess = e => {
-            if(e.target.result) historico = e.target.result;
-        };
-    }
 
     function abrir(idx) {
-        if (!dados[idx]) return;
         atual = idx;
         const q = dados[idx];
         document.getElementById('card').style.display = 'block';
-        document.getElementById('q-header').innerText = `${q.info} | ID: ${q.id}`;
+        document.getElementById('q-header').innerText = q.info || "Questão";
         document.getElementById('q-enunciado').innerHTML = q.htmlEnunciado || q.enunciado;
-        
         const area = document.getElementById('q-alternativas');
         area.innerHTML = '';
-        const letras = ['A', 'B', 'C', 'D', 'E'];
-        
-        q.alts.forEach((alt, i) => {
+        ['A','B','C','D','E'].forEach((l, i) => {
+            if(!q.alts[i]) return;
             const btn = document.createElement('div');
             btn.className = 'opcao';
-            btn.innerHTML = `<div class="letra">${letras[i]}</div><div style="flex:1">${alt}</div>`;
-            btn.onclick = () => validar(letras[i], q.gabarito, btn);
+            btn.innerHTML = `<div class="letra">${l}</div><div>${q.alts[i]}</div>`;
+            btn.onclick = () => {
+                if(l === q.gabarito) btn.classList.add('correct');
+                else {
+                    btn.classList.add('wrong');
+                    chatIA(`O usuário errou a questão sobre ${q.info}. Explique o conceito de forma estratégica.`);
+                }
+            };
             area.appendChild(btn);
         });
-        document.getElementById('counter').innerText = `${idx + 1} / ${dados.length}`;
     }
 
-    function validar(escolha, correta, elemento) {
-        const acerto = escolha === correta;
-        const qAtual = dados[atual];
-        
-        historico[qAtual.id] = { status: acerto ? "Acertou" : "Errou", data: new Date().toLocaleString() };
-        const tx = db.transaction("historico", "readwrite");
-        tx.objectStore("historico").put(historico, "stats");
-
-        if(acerto) {
-            elemento.classList.add('correct');
-        } else {
-            elemento.classList.add('wrong');
-            const opcoes = document.querySelectorAll('.opcao');
-            opcoes.forEach(o => { if(o.querySelector('.letra').innerText === correta) o.classList.add('correct'); });
-            
-            // IA Inicia Raio-X automaticamente no erro
-            chatIA(`O usuário errou a questão ${qAtual.id}. Explique o assunto focado na banca e o porquê do erro.`);
-        }
-    }
-
-    async function chatIA(comando) {
-        const status = document.getElementById('ai-status').innerText;
-        const msgWindow = document.getElementById('chat-window');
-        
-        const promptSystem = status === "MODO BANCA" 
-            ? "Você é a banca examinadora agora. Seja impiedoso, foque no 'Raio-X' de como você costuma cobrar esse conteúdo e no que o candidato deve dominar para não falhar."
-            : "Você é um estrategista de estudos. Analise a questão e o erro do aluno, dando dicas conceituais e sugerindo o que revisar.";
-
+    async function chatIA(msg) {
+        const win = document.getElementById('chat-window');
+        win.innerHTML += `<div class="msg msg-ai"><b>IA analisando...</b></div>`;
         try {
-            const response = await fetch(GROQ_API_URL, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    model: "llama3-70b-8192",
-                    messages: [
-                        { role: "system", content: promptSystem },
-                        { role: "user", content: `Dados da Questão: ${JSON.stringify(dados[atual])}. Comando: ${comando}` }
-                    ]
+                    model: "llama3-8b-8192",
+                    messages: [{role: "system", content: "Você é um estrategista de concursos."}, {role: "user", content: msg}]
                 })
             });
-            const resData = await response.json();
-            const resposta = resData.choices[0].message.content;
-            
-            msgWindow.innerHTML += `<div class="msg msg-ai"><b>AI:</b><br>${resposta}</div>`;
-            msgWindow.scrollTop = msgWindow.scrollHeight;
-        } catch (e) {
-            console.error("Erro na IA:", e);
-        }
-    }
-
-    function enviarMsg() {
-        const msg = document.getElementById('user-msg').value;
-        if(!msg) return;
-        document.getElementById('chat-window').innerHTML += `<div class="msg" style="text-align:right"><i>${msg}</i></div>`;
-        chatIA(msg);
-        document.getElementById('user-msg').value = "";
-    }
-
-    function mudarPerfil() {
-        const p = document.getElementById('perfil-select').value;
-        const avatar = document.getElementById('avatar');
-        const status = document.getElementById('ai-status');
-        if(p === 'banca') { avatar.innerText = "🏛️"; status.innerText = "MODO BANCA"; avatar.style.borderColor = "#dc2626"; }
-        else { avatar.innerText = "🤖"; status.innerText = "MODO LIVRE"; avatar.style.borderColor = "#3b82f6"; }
+            const d = await r.json();
+            win.lastChild.innerHTML = `<b>IA:</b><br>${d.choices[0].message.content}`;
+            win.scrollTop = win.scrollHeight;
+        } catch(e) { console.error(e); }
     }
 
     document.getElementById('file-in').onchange = e => {
         const reader = new FileReader();
         reader.onload = ev => {
             dados = JSON.parse(ev.target.result);
-            const tx = db.transaction("questoes", "readwrite");
-            tx.objectStore("questoes").put(dados, "data");
-            location.reload();
+            const dbReq = indexedDB.open("SimuladorDB", 5);
+            dbReq.onsuccess = () => {
+                const tx = dbReq.result.transaction("questoes", "readwrite");
+                tx.objectStore("questoes").put(dados, "data");
+                location.reload();
+            };
         };
         reader.readAsText(e.target.files[0]);
     };
-
-    function navegar(dir) {
-        let n = atual + dir;
-        if(n >= 0 && n < dados.length) abrir(n);
-    }
 </script>
 </body>
 </html>
