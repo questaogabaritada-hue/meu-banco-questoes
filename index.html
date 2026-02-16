@@ -3,42 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MENTOR IA - PC (MODO SUBSÍDIO & GESTÃO)</title>
+    <title>MENTOR IA - SISTEMA DE SUBSÍDIOS ESTRATÉGICOS</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS LEI - MANTIDO INTEGRALMENTE */
-        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --dark: #0f172a; --accent: #dc2626; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --dark: #0f172a; --accent: #dc2626; --success: #16a34a; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow: hidden; }
+        
         .app-container { display: flex; height: 100vh; width: 100vw; }
         .quest-side { flex: 1.2; padding: 40px; overflow-y: auto; border-right: 1px solid #e2e8f0; background: white; }
-        .ia-side { flex: 0.8; background: #fff; padding: 25px; overflow-y: auto; border-left: 1px solid #e2e8f0; }
+        .ia-side { flex: 0.8; background: #fff; padding: 25px; overflow-y: auto; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 20px; }
+
+        /* ESTILO DA QUESTÃO (SUA LEI) */
         .container { max-width: 800px; margin: 0 auto; width: 100%; }
         #q-header { color: #94a3b8; font-size: 0.8rem; margin-bottom: 25px; font-weight: 600; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; display: flex; justify-content: space-between; }
         .texto-associado-wrapper { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; margin-bottom: 30px; border-radius: 0 8px 8px 0; overflow: hidden; position: relative; }
         #q-texto-assoc { padding: 20px; max-height: 100px; overflow: hidden; transition: max-height 0.4s ease; font-size: 1.05rem; color: #475569; line-height: 1.6; }
         #q-texto-assoc.expandido { max-height: none; }
-        .btn-toggle-texto { width: 100%; padding: 8px; background: #f1f5f9; border: none; border-top: 1px solid #e2e8f0; color: var(--primary); font-weight: bold; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-toggle-texto { width: 100%; padding: 8px; background: #f1f5f9; border: none; border-top: 1px solid #e2e8f0; color: var(--primary); font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .html-render { font-size: 1.15rem; line-height: 1.7; color: #1e293b; }
         .html-render img { display: block; max-width: 100%; margin: 25px auto; border-radius: 6px; }
         .alternativas { margin-top: 35px; display: grid; gap: 12px; }
         .opcao { display: flex; padding: 18px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; transition: 0.2s; align-items: center; }
         .letra { min-width: 32px; height: 32px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 15px; color: var(--primary); }
-        .correct { border-color: #16a34a !important; background: #f0fdf4 !important; color: #16a34a; }
-        .wrong { border-color: #dc2626 !important; background: #fef2f2 !important; color: #dc2626; }
-        .ia-box { background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .correct { border-color: var(--success) !important; background: #f0fdf4 !important; color: var(--success); }
+        .wrong { border-color: var(--accent) !important; background: #fef2f2 !important; color: var(--accent); }
+
+        /* ESTILO IA E GESTÃO */
+        .ia-box { background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; position: relative; }
+        .btn-audio { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .btn-audio:hover { transform: scale(1.05); background: #15803d; }
+        .btn-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: 600; font-size: 0.8rem; }
+        .btn-next { width: 100%; padding: 20px; background: var(--dark); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 800; margin-top: 20px; }
+
+        /* TELA INICIAL */
         #setup-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .perfil-row { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; margin-bottom: 8px; border-radius: 8px; padding: 5px 15px; }
-        .btn-del { color: #dc2626; cursor: pointer; font-size: 1.2rem; border: none; background: none; }
+        .modal { background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); width: 450px; }
+        .perfil-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f1f5f9; border-radius: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div id="setup-screen">
-    <div style="background:white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 420px; text-align: center;">
-        <h2 style="margin-bottom: 20px;">👤 Gestão de Perfis</h2>
-        <div id="lista-perfis" style="max-height: 250px; overflow-y: auto; margin-bottom: 20px;">Carregando...</div>
-        <input type="text" id="novo-perfil-input" placeholder="Novo Perfil..." style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
-        <button onclick="criarPerfil()" style="width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">ADICIONAR PERFIL</button>
+    <div class="modal">
+        <h2 style="margin-top: 0;">👤 Gestão de Perfis</h2>
+        <div id="lista-perfis" style="margin-bottom: 20px; max-height: 200px; overflow-y: auto;"></div>
+        <input type="text" id="perfil-input" placeholder="Novo nome..." style="width:100%; padding:12px; border-radius:8px; border:1px solid #ddd; margin-bottom:10px; box-sizing:border-box;">
+        <button onclick="criarPerfil()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">CRIAR PERFIL</button>
+        <button onclick="resetarTudo()" class="btn-danger" style="margin-top: 20px;">🔥 APAGAR TUDO (RECOMEÇAR DO ZERO)</button>
     </div>
 </div>
 
@@ -46,8 +57,8 @@
     <div class="quest-side">
         <div class="container">
             <div id="q-header">
-                <span id="meta-info">SISTEMA DE GERAÇÃO DE SUBSÍDIOS</span>
-                <span onclick="location.reload()" style="cursor:pointer; color: var(--primary);">🏠 VOLTAR</span>
+                <span id="meta-info">CARREGANDO...</span>
+                <span onclick="location.reload()" style="cursor:pointer; color: var(--primary);">🏠 SAIR</span>
             </div>
             <div id="wrapper-assoc" class="texto-associado-wrapper" style="display:none">
                 <div id="q-texto-assoc"></div>
@@ -55,30 +66,33 @@
             </div>
             <div id="q-enunciado" class="html-render"></div>
             <div id="q-alternativas" class="alternativas"></div>
-            <button id="btn-next" style="display:none; width: 100%; padding: 18px; background: var(--dark); color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 25px;" onclick="cicloQuestao()">PRÓXIMA QUESTÃO</button>
+            <button id="btn-next" class="btn-next" style="display:none" onclick="proximaQuestao()">PRÓXIMA MISSÃO →</button>
         </div>
     </div>
 
     <div class="ia-side">
-        <div class="ia-box" style="border-left: 5px solid var(--primary);">
-            <h4 style="margin: 0 0 10px 0; color: var(--primary);">📖 INTELIGÊNCIA PREVENTIVA (SUBSÍDIO)</h4>
-            <div id="preventivo-texto" style="font-size: 0.95rem; line-height: 1.6; color: #334155;">Aguardando questão...</div>
-            <div id="save-status" style="font-size: 0.7rem; color: #16a34a; margin-top: 10px; font-weight: bold;"></div>
+        <div class="ia-box" style="border-left: 6px solid var(--success);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h4 style="margin: 0; color: var(--success); text-transform: uppercase; font-size: 0.75rem;">📖 Inteligência Preventiva</h4>
+                <button id="btn-play" class="btn-audio" onclick="ouvir()">🔊 OUVIR</button>
+            </div>
+            <div id="subsidio-corpo" style="font-size: 1rem; line-height: 1.6; color: #334155;">Gerando aula...</div>
+            <div id="status-git" style="margin-top: 15px; font-size: 0.7rem; font-weight: bold; color: var(--success);"></div>
         </div>
+
         <div class="ia-box">
-            <h4 style="margin: 0 0 5px 0;">📊 BANCO DE DADOS</h4>
-            <div id="total-subsidios" style="font-size: 0.8rem; color: #64748b;">Carregando estatísticas...</div>
+            <h4 style="margin:0 0 10px 0; font-size: 0.8rem;">⚙️ FERRAMENTAS DO SISTEMA</h4>
+            <button class="btn-danger" onclick="limparSubsidios()">🗑️ APAGAR SUBSÍDIOS ANTIGOS</button>
+            <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 10px;">Use para forçar a IA a gerar novos conteúdos no padrão didático.</p>
         </div>
     </div>
 </div>
 
 <script>
+    // CONFIGURAÇÕES GITHUB
     const GITHUB_TOKEN = "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";
     const GROQ_KEY = "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";
-    const REPO_OWNER = "questaogabaritada-hue"; 
-    const REPO_NAME = "meu-banco-questoes";
-    const FILE_HISTORICO = "progresso.json";
-    const FILE_SUBSIDIOS = "subsidios_cache.json";
+    const REPO = "questaogabaritada-hue/meu-banco-questoes";
 
     let PERFIL = "";
     let BANCO = [];
@@ -88,163 +102,176 @@
 
     async function init() {
         try {
-            const resH = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_HISTORICO}`, {
-                headers: { Authorization: `token ${GITHUB_TOKEN}` }
-            });
-            if (resH.ok) {
-                const data = await resH.json();
-                HISTORICO = JSON.parse(atob(data.content));
-                renderizarPerfis();
-            }
-            const resS = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_SUBSIDIOS}`, {
-                headers: { Authorization: `token ${GITHUB_TOKEN}` }
-            });
-            if (resS.ok) {
-                const dataS = await resS.json();
-                SUBSIDIOS = JSON.parse(atob(dataS.content));
-                document.getElementById('total-subsidios').innerText = `${Object.keys(SUBSIDIOS).length} Subsídios salvos no GitHub.`;
-            }
-        } catch (e) { console.error("Erro inicial:", e); }
+            const resH = await fetch(`https://api.github.com/repos/${REPO}/contents/progresso.json`, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
+            if (resH.ok) HISTORICO = JSON.parse(atob((await resH.json()).content));
+            
+            const resS = await fetch(`https://api.github.com/repos/${REPO}/contents/subsidios_cache.json`, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
+            if (resS.ok) SUBSIDIOS = JSON.parse(atob((await resS.json()).content));
+
+            renderizarPerfis();
+        } catch (e) { console.log("Arquivos não encontrados, serão criados."); }
     }
 
     function renderizarPerfis() {
-        const lista = document.getElementById('lista-perfis');
-        lista.innerHTML = "";
+        const div = document.getElementById('lista-perfis');
+        div.innerHTML = "";
         Object.keys(HISTORICO).forEach(p => {
-            const row = document.createElement('div');
-            row.className = 'perfil-row';
-            row.innerHTML = `
-                <span onclick="entrar('${p}')" style="cursor:pointer; font-weight:600; flex:1;">👤 ${p}</span>
-                <button class="btn-del" onclick="excluirPerfil('${p}')">🗑️</button>
-            `;
-            lista.appendChild(row);
+            div.innerHTML += `
+                <div class="perfil-item">
+                    <span onclick="entrar('${p}')" style="cursor:pointer; font-weight:bold;">👤 ${p}</span>
+                    <button onclick="excluirPerfil('${p}')" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+                </div>`;
         });
     }
 
-    async function excluirPerfil(nome) {
-        if(confirm(`Deseja excluir permanentemente o perfil ${nome}?`)) {
-            delete HISTORICO[nome];
-            await salvarArquivo(FILE_HISTORICO, HISTORICO);
-            renderizarPerfis();
-        }
+    async function entrar(p) {
+        PERFIL = p;
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
+        const res = await fetch(`https://raw.githubusercontent.com/${REPO}/main/banco_final.json?v=${Date.now()}`);
+        BANCO = await res.json();
+        proximaQuestao();
     }
 
     async function criarPerfil() {
-        const nome = document.getElementById('novo-perfil-input').value.trim();
-        if(nome && !HISTORICO[nome]) {
-            HISTORICO[nome] = [];
-            await salvarArquivo(FILE_HISTORICO, HISTORICO);
+        const nome = document.getElementById('perfil-input').value.trim();
+        if(nome) {
+            if(!HISTORICO[nome]) HISTORICO[nome] = [];
+            await salvar('progresso.json', HISTORICO);
             entrar(nome);
         }
     }
 
-    async function entrar(nome) {
-        PERFIL = nome;
-        document.getElementById('setup-screen').style.display = 'none';
-        document.getElementById('main-app').style.display = 'flex';
-        const res = await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/banco_final.json?v=${Date.now()}`);
-        BANCO = await res.json();
-        cicloQuestao();
-    }
-
-    async function cicloQuestao() {
-        document.getElementById('btn-next').style.display = 'none';
-        document.getElementById('save-status').innerText = "";
-        
-        const feitas = (HISTORICO[PERFIL] || []).map(h => h.id);
-        const disponiveis = BANCO.filter(q => !feitas.includes(q.id));
-        ATUAL = disponiveis[Math.floor(Math.random() * disponiveis.length)] || BANCO[0];
-        
-        renderizarQuestao();
-    }
-
-    async function renderizarQuestao() {
-        document.getElementById('meta-info').innerText = ATUAL.info;
-        
-        // TEXTO ASSOCIADO
-        const wrapper = document.getElementById('wrapper-assoc');
-        const areaAssoc = document.getElementById('q-texto-assoc');
-        let htmlAssoc = ATUAL.htmlTextoAssociado || ATUAL.txtAssoc;
-        if (htmlAssoc && htmlAssoc.trim().length > 5) {
-            wrapper.style.display = 'block'; areaAssoc.innerHTML = htmlAssoc;
-        } else { wrapper.style.display = 'none'; }
-
-        // ENUNCIADO E ALTS
-        document.getElementById('q-enunciado').innerHTML = ATUAL.htmlEnunciado || ATUAL.enunciado;
-        const altArea = document.getElementById('q-alternativas');
-        altArea.innerHTML = '';
-        const letras = ['A', 'B', 'C', 'D', 'E'];
-        ATUAL.alts.forEach((texto, i) => {
-            const div = document.createElement('div');
-            div.className = 'opcao';
-            let imgs = "";
-            if(ATUAL.imgsAlternativas && ATUAL.imgsAlternativas[i]) {
-                ATUAL.imgsAlternativas[i].forEach(url => imgs += `<img src="${url}" style="display:block; max-width:100%; margin-top:10px;">`);
-            }
-            div.innerHTML = `<div class="letra">${letras[i]}</div><div style="flex:1">${texto}${imgs}</div>`;
-            div.onclick = () => validar(letras[i], div);
-            altArea.appendChild(div);
-        });
-
-        // GERAÇÃO/BUSCA DE SUBSÍDIO (FOCO TOTAL)
-        if (SUBSIDIOS[ATUAL.id]) {
-            document.getElementById('preventivo-texto').innerText = SUBSIDIOS[ATUAL.id];
-            document.getElementById('save-status').innerText = "✓ LIDO DO GITHUB";
-        } else {
-            document.getElementById('preventivo-texto').innerText = "IA Gerando subsídio didático...";
-            const sub = await callGroq(`Explique o tema ${ATUAL.disciplinas ? ATUAL.disciplinas.join(", ") : "desta questão"} de forma didática e puramente técnica. NÃO cite a resposta, NÃO analise o enunciado. Ensine o conceito cru para que o aluno possa responder sozinho.`, "llama-3.1-8b-instant");
-            document.getElementById('preventivo-texto').innerText = sub;
-            SUBSIDIOS[ATUAL.id] = sub;
-            await salvarArquivo(FILE_SUBSIDIOS, SUBSIDIOS);
-            document.getElementById('save-status').innerText = "✓ SALVO NO GITHUB";
-            document.getElementById('total-subsidios').innerText = `${Object.keys(SUBSIDIOS).length} Subsídios salvos no GitHub.`;
+    async function excluirPerfil(p) {
+        if(confirm(`Excluir ${p}?`)) {
+            delete HISTORICO[p];
+            await salvar('progresso.json', HISTORICO);
+            renderizarPerfis();
         }
     }
 
-    async function validar(letra, el) {
+    async function proximaQuestao() {
+        document.getElementById('btn-next').style.display = 'none';
+        const feitas = (HISTORICO[PERFIL] || []).map(h => h.id);
+        const disponiveis = BANCO.filter(q => !feitas.includes(q.id));
+        ATUAL = disponiveis[Math.floor(Math.random() * disponiveis.length)] || BANCO[0];
+        renderQuestao();
+    }
+
+    function renderQuestao() {
+        document.getElementById('meta-info').innerText = ATUAL.info;
+        
+        // Texto Associado
+        const wrap = document.getElementById('wrapper-assoc');
+        const txtA = document.getElementById('q-texto-assoc');
+        if(ATUAL.htmlTextoAssociado || ATUAL.txtAssoc) {
+            wrap.style.display = 'block';
+            txtA.innerHTML = ATUAL.htmlTextoAssociado || ATUAL.txtAssoc;
+            txtA.classList.remove('expandido');
+        } else wrap.style.display = 'none';
+
+        // Enunciado e Alternativas
+        document.getElementById('q-enunciado').innerHTML = ATUAL.htmlEnunciado || ATUAL.enunciado;
+        const altDiv = document.getElementById('q-alternativas');
+        altDiv.innerHTML = "";
+        ['A','B','C','D','E'].forEach((l, i) => {
+            if(!ATUAL.alts[i]) return;
+            const d = document.createElement('div');
+            d.className = 'opcao';
+            let imgs = "";
+            if(ATUAL.imgsAlternativas && ATUAL.imgsAlternativas[i]) {
+                ATUAL.imgsAlternativas[i].forEach(u => imgs += `<img src="${u}" style="display:block; max-width:100%; margin-top:10px;">`);
+            }
+            d.innerHTML = `<div class="letra">${l}</div><div style="flex:1">${ATUAL.alts[i]}${imgs}</div>`;
+            d.onclick = () => validar(l, d);
+            altDiv.appendChild(d);
+        });
+
+        lidarComSubsidio();
+    }
+
+    async function lidarComSubsidio() {
+        const corpo = document.getElementById('subsidio-corpo');
+        const st = document.getElementById('status-git');
+        
+        if(SUBSIDIOS[ATUAL.id]) {
+            corpo.innerHTML = SUBSIDIOS[ATUAL.id].replace(/\n/g, '<br>');
+            st.innerText = "✓ CONTEÚDO RECUPERADO DO REPOSITÓRIO";
+        } else {
+            corpo.innerText = "Gerando nova aula estratégica...";
+            const prompt = `Aja como um professor de concurso. Explique o tema "${ATUAL.disciplinas ? ATUAL.disciplinas.join(' ') : 'desta questão'}" assim:
+            1. O QUE É? (2 frases diretas)
+            2. FOCO NA BANCA: (Diga onde as pessoas erram nisso)
+            3. REGRA DE OURO: (Macete prático para resolver).
+            NÃO dê a resposta da questão.`;
+            
+            const sub = await callIA(prompt);
+            SUBSIDIOS[ATUAL.id] = sub;
+            corpo.innerHTML = sub.replace(/\n/g, '<br>');
+            await salvar('subsidios_cache.json', SUBSIDIOS);
+            st.innerText = "✓ NOVO SUBSÍDIO SALVO NO REPOSITÓRIO";
+        }
+    }
+
+    async function validar(l, el) {
         document.querySelectorAll('.opcao').forEach(o => o.style.pointerEvents = 'none');
-        const correta = letra === ATUAL.gabarito;
-        el.classList.add(correta ? 'correct' : 'wrong');
-        if(!correta) {
+        const ok = l === ATUAL.gabarito;
+        el.classList.add(ok ? 'correct' : 'wrong');
+        if(!ok) {
             document.querySelectorAll('.opcao').forEach(o => {
                 if(o.querySelector('.letra').innerText === ATUAL.gabarito) o.classList.add('correct');
             });
         }
-        HISTORICO[PERFIL].push({id: ATUAL.id, ok: correta});
-        await salvarArquivo(FILE_HISTORICO, HISTORICO);
+        HISTORICO[PERFIL].push({id: ATUAL.id, ok: ok});
+        await salvar('progresso.json', HISTORICO);
         document.getElementById('btn-next').style.display = 'block';
     }
 
-    async function salvarArquivo(nome, objeto) {
-        try {
-            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${nome}`;
-            const res = await fetch(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
-            const data = await res.json();
-            await fetch(url, {
-                method: "PUT",
-                headers: { Authorization: `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    message: "Update", 
-                    content: btoa(unescape(encodeURIComponent(JSON.stringify(objeto)))), 
-                    sha: data.sha 
-                })
-            });
-        } catch (e) { console.error("Erro ao salvar:", e); }
+    async function salvar(arq, obj) {
+        const url = `https://api.github.com/repos/${REPO}/contents/${arq}`;
+        const res = await fetch(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
+        const sha = res.ok ? (await res.json()).sha : null;
+        await fetch(url, {
+            method: "PUT",
+            headers: { Authorization: `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ message: "Sinc", content: btoa(unescape(encodeURIComponent(JSON.stringify(obj)))), sha: sha })
+        });
     }
 
-    async function callGroq(p, m) {
+    async function callIA(p) {
         const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: { Authorization: `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ model: m, messages: [{role: "user", content: p}] })
+            body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{role: "user", content: p}] })
         });
-        const d = await r.json();
-        return d.choices[0].message.content;
+        return (await r.json()).choices[0].message.content;
+    }
+
+    function ouvir() {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(document.getElementById('subsidio-corpo').innerText);
+        msg.lang = 'pt-BR';
+        msg.rate = 1.1;
+        window.speechSynthesis.speak(msg);
+    }
+
+    async function limparSubsidios() {
+        if(confirm("Apagar todos os subsídios salvos?")) {
+            SUBSIDIOS = {};
+            await salvar('subsidios_cache.json', SUBSIDIOS);
+            location.reload();
+        }
+    }
+
+    async function resetarTudo() {
+        if(confirm("ISSO APAGARÁ TUDO! HISTÓRICO E PERFIS. Confirma?")) {
+            await salvar('progresso.json', {});
+            location.reload();
+        }
     }
 
     function toggleTexto() {
-        const txt = document.getElementById('q-texto-assoc');
-        txt.classList.toggle('expandido');
+        document.getElementById('q-texto-assoc').classList.toggle('expandido');
     }
 
     init();
