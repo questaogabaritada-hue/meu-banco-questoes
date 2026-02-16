@@ -2,99 +2,61 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MENTOR IA - DESKTOP COMMAND</title>
+    <title>MENTOR IA - PC COMMAND (STRICT GITHUB MODE)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --dark: #0f172a; --accent: #dc2626; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow: hidden; }
-        
-        /* Layout Fixo para PC (Meio a Meio) */
         .app-container { display: flex; height: 100vh; width: 100vw; }
-
-        /* Coluna da Questão (Esquerda) */
-        .quest-side { 
-            flex: 1; 
-            padding: 40px; 
-            overflow-y: auto; 
-            border-right: 1px solid #e2e8f0; 
-            display: flex; 
-            flex-direction: column;
-        }
-
-        /* Coluna da IA (Direita) */
-        .ia-side { 
-            width: 480px; 
-            background: white; 
-            padding: 30px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-            box-shadow: -5px 0 15px rgba(0,0,0,0.02);
-        }
-
-        /* Header de Controle */
-        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .btn-home { background: none; border: 1px solid #cbd5e1; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
-
-        .card { background: white; padding: 25px; border-radius: 18px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-        .btn { padding: 18px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; text-transform: uppercase; }
+        .quest-side { flex: 1; padding: 40px; overflow-y: auto; border-right: 1px solid #e2e8f0; background: white; }
+        .ia-side { width: 450px; background: #fff; padding: 30px; overflow-y: auto; border-left: 1px solid #e2e8f0; }
+        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .card { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .btn { padding: 15px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-subsidiary { background: #f1f5f9; color: var(--primary); border: 2px dashed var(--primary); }
-        
-        .opcao { display: flex; padding: 18px; border: 2px solid #f1f5f9; border-radius: 14px; cursor: pointer; margin-bottom: 12px; align-items: center; transition: 0.2s; }
-        .opcao:hover { border-color: var(--primary); background: #f0f7ff; }
-        .letra { width: 35px; height: 35px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; margin-right: 15px; color: var(--primary); }
-        
+        .btn-video { background: #ff0000; color: white; margin-top: 10px; }
+        .opcao { display: flex; padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; margin-bottom: 10px; align-items: center; }
+        .opcao:hover { border-color: var(--primary); }
+        .letra { width: 30px; height: 30px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; margin-right: 15px; }
         .correct { border-color: #16a34a !important; background: #f0fdf4 !important; }
         .wrong { border-color: var(--accent) !important; background: #fef2f2 !important; }
-
-        #preventivo-box { background: #eff6ff; border-left: 6px solid var(--primary); padding: 20px; border-radius: 12px; }
-        #carrasco-box { background: var(--dark); color: white; padding: 25px; border-radius: 18px; display: none; }
-        
-        /* Modal Video */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
+        img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
+        #setup-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-<div id="setup-screen" style="padding: 100px 50px; max-width: 600px; margin: auto; text-align: center;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 10px;">⚔️ Battle Station PC</h1>
-    <div id="lista-perfis" class="card" style="text-align: left; margin-top: 30px;"></div>
-    <div class="card" style="margin-top: 20px;">
-        <input type="text" id="novo-perfil" placeholder="Nome do Novo Perfil" class="card" style="width:100%; box-sizing: border-box; text-align:center;">
-        <button class="btn btn-primary" onclick="criarPerfil()">CRIAR NOVO PERFIL</button>
+<div id="setup-screen">
+    <div class="card" style="width: 400px; text-align: center;">
+        <h2>🛡️ Acesso Centralizado</h2>
+        <p style="font-size: 0.9rem; color: #666;">Os perfis são lidos diretamente do seu GitHub.</p>
+        <div id="lista-perfis" style="margin: 20px 0; max-height: 200px; overflow-y: auto;"></div>
+        <input type="text" id="novo-perfil" placeholder="Novo Perfil" class="btn" style="border: 1px solid #ccc; margin-bottom: 10px; text-align: center;">
+        <button class="btn btn-primary" onclick="criarPerfil()">CRIAR E ENTRAR</button>
     </div>
 </div>
 
 <div id="main-app" class="app-container" style="display: none;">
     <div class="quest-side">
         <div class="nav-header">
-            <div id="q-meta" style="font-weight: 800; color: var(--primary); text-transform: uppercase; font-size: 0.8rem;"></div>
-            <button class="btn-home" onclick="resetApp()">🏠 TROCAR PERFIL</button>
+            <div id="q-meta" style="font-weight: 800; color: var(--primary); font-size: 0.75rem;"></div>
+            <button onclick="location.reload()" style="cursor:pointer; border:none; background:none; font-size:0.8rem;">🏠 SAIR</button>
         </div>
-        <div id="q-enunciado" style="font-size: 1.4rem; line-height: 1.6; margin-bottom: 30px;"></div>
-        <div id="q-alternativas"></div>
-        <button id="btn-next" class="btn btn-primary" style="display:none; margin-top:20px; max-width: 300px;" onclick="cicloEstrategico()">PRÓXIMA QUESTÃO ➔</button>
+        <div id="q-enunciado" style="font-size: 1.2rem; line-height: 1.6;"></div>
+        <div id="q-alternativas" style="margin-top: 25px;"></div>
+        <button id="btn-next" class="btn btn-primary" style="display:none; margin-top:20px;" onclick="proximaQuestao()">PRÓXIMA QUESTÃO ➔</button>
     </div>
 
     <div class="ia-side">
-        <div id="preventivo-box">
-            <h4 style="margin: 0 0 10px 0;">📖 INTELIGÊNCIA PREVENTIVA</h4>
-            <div id="preventivo-texto">Analisando fundamentos...</div>
+        <div id="preventivo-box" class="card" style="background: #eff6ff;">
+            <h4 style="margin:0 0 10px 0;">📖 INTELIGÊNCIA PREVENTIVA</h4>
+            <div id="preventivo-texto">...</div>
         </div>
-        <button class="btn btn-subsidiary" onclick="abrirApoio()">🎬 VÍDEO-AULA RELACIONADA</button>
-        <div id="carrasco-box">
-            <h4 style="margin: 0 0 10px 0; color: #ff4d4d;">💀 FEEDBACK CARRASCO</h4>
+        <button class="btn btn-video" onclick="abrirVideo()">🎬 VER VÍDEO NO YOUTUBE</button>
+        <div id="carrasco-box" class="card" style="background: var(--dark); color: white; display:none; margin-top:20px;">
+            <h4 style="margin:0 0 10px 0; color: #ff4d4d;">💀 FEEDBACK CARRASCO</h4>
             <div id="carrasco-texto"></div>
         </div>
-    </div>
-</div>
-
-<div id="modal-video" class="modal" onclick="this.style.display='none'">
-    <div style="position:relative; top:50%; transform:translateY(-50%); width:85%; max-width:1000px; margin:auto;">
-        <div id="video-frame"></div>
     </div>
 </div>
 
@@ -103,147 +65,124 @@
     const GROQ_KEY = "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";
     const REPO_OWNER = "questaogabaritada-hue"; 
     const REPO_NAME = "meu-banco-questoes";
-    const BANCO_URL = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/banco_final.json`;
     const FILE_HISTORICO = "progresso.json";
 
     let PERFIL_ATIVO = "";
-    let BANCO_DADOS = [];
-    let HISTORICO_GLOBAL = {};
-    let QUESTAO_ATUAL = null;
+    let BANCO = [];
+    let HISTORICO = {};
+    let ATUAL = null;
 
-    function carregarMenuPerfis() {
-        const perfis = JSON.parse(localStorage.getItem('mentor_perfis') || "[]");
-        const lista = document.getElementById('lista-perfis');
-        lista.innerHTML = perfis.length ? "" : "<p style='text-align:center'>Nenhum perfil ativo no PC.</p>";
-        perfis.forEach(p => {
-            const row = document.createElement('div');
-            row.style = "display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #f1f5f9";
-            row.innerHTML = `<strong>👤 ${p}</strong><button class="btn-home" style="background:var(--primary); color:white" onclick="iniciarSessao('${p}')">CARREGAR</button>`;
-            lista.appendChild(row);
-        });
+    // 1. CARREGA PERFIS DO GITHUB (IGNORA MEMÓRIA LOCAL)
+    async function init() {
+        try {
+            const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_HISTORICO}`, {
+                headers: { Authorization: `token ${GITHUB_TOKEN}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                HISTORICO = JSON.parse(atob(data.content));
+                const lista = document.getElementById('lista-perfis');
+                Object.keys(HISTORICO).forEach(p => {
+                    lista.innerHTML += `<button class="btn" style="margin-bottom:5px; background:#e2e8f0" onclick="entrar('${p}')">👤 ${p}</button>`;
+                });
+            }
+        } catch (e) { console.log("Sem histórico prévio."); }
     }
 
-    function criarPerfil() {
-        const nome = document.getElementById('novo-perfil').value.trim();
-        if(!nome) return;
-        let perfis = JSON.parse(localStorage.getItem('mentor_perfis') || "[]");
-        if(!perfis.includes(nome)) perfis.push(nome);
-        localStorage.setItem('mentor_perfis', JSON.stringify(perfis));
-        iniciarSessao(nome);
-    }
-
-    async function iniciarSessao(nome) {
+    function entrar(nome) {
         PERFIL_ATIVO = nome;
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('main-app').style.display = 'flex';
-        await sincronizarGitHub();
-        cicloEstrategico();
+        carregarBanco();
     }
 
-    function resetApp() {
-        document.getElementById('main-app').style.display = 'none';
-        document.getElementById('setup-screen').style.display = 'block';
-        carregarMenuPerfis();
+    async function criarPerfil() {
+        const nome = document.getElementById('novo-perfil').value.trim();
+        if(nome) entrar(nome);
     }
 
-    async function sincronizarGitHub() {
-        try {
-            const resB = await fetch(`${BANCO_URL}?v=${Date.now()}`);
-            BANCO_DADOS = await resB.json();
-            const resH = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_HISTORICO}`, {
-                headers: { Authorization: `token ${GITHUB_TOKEN}` }
-            });
-            if(resH.ok) {
-                const dataH = await resH.json();
-                HISTORICO_GLOBAL = JSON.parse(atob(dataH.content));
-            }
-        } catch (e) { HISTORICO_GLOBAL = {}; }
+    async function carregarBanco() {
+        const res = await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/banco_final.json?v=${Date.now()}`);
+        BANCO = await res.json();
+        proximaQuestao();
     }
 
-    async function cicloEstrategico() {
+    async function proximaQuestao() {
         document.getElementById('btn-next').style.display = 'none';
         document.getElementById('carrasco-box').style.display = 'none';
         document.getElementById('preventivo-texto').innerText = "Mentor analisando...";
-        
-        // Filtra questões não feitas para evitar travamento na mesma
-        const feitas = (HISTORICO_GLOBAL[PERFIL_ATIVO] || []).map(h => h.id);
-        const disponiveis = BANCO_DADOS.filter(q => !feitas.includes(q.id)).slice(0, 30);
-        
-        const prompt = `Como estrategista, escolha UM ID desta lista para o perfil ${PERFIL_ATIVO}: ${JSON.stringify(disponiveis.map(d => d.id))}. Responda apenas o número.`;
-        const idResp = await callGroq(prompt, "llama-3.3-70b-versatile");
-        const idFinal = idResp.replace(/\D/g, '');
-        
-        montarQuestao(idFinal || BANCO_DADOS[0].id);
-    }
 
-    async function montarQuestao(id) {
-        QUESTAO_ATUAL = BANCO_DADOS.find(q => q.id == id) || BANCO_DADOS[Math.floor(Math.random()*BANCO_DADOS.length)];
-        document.getElementById('q-meta').innerText = QUESTAO_ATUAL.info;
-        document.getElementById('q-enunciado').innerHTML = QUESTAO_ATUAL.htmlEnunciado || QUESTAO_ATUAL.enunciado;
+        const feitas = (HISTORICO[PERFIL_ATIVO] || []).map(h => h.id);
+        const listaIDs = BANCO.filter(q => !feitas.includes(q.id)).slice(0, 20).map(q => q.id);
+        
+        const resp = await callGroq(`Seja breve. Escolha um ID desta lista para o perfil ${PERFIL_ATIVO}: ${JSON.stringify(listaIDs)}. Responda APENAS o número.`, "llama-3.3-70b-versatile");
+        const idEscolhido = resp.replace(/\D/g, '') || BANCO[0].id;
+        
+        ATUAL = BANCO.find(q => q.id == idEscolhido);
+        
+        // SUPORTE A IMAGENS E TEXTOS ASSOCIADOS
+        document.getElementById('q-meta').innerText = ATUAL.info;
+        document.getElementById('q-enunciado').innerHTML = ATUAL.htmlEnunciado || ATUAL.enunciado;
         
         const area = document.getElementById('q-alternativas');
         area.innerHTML = "";
         ["A","B","C","D","E"].forEach((l, i) => {
-            if(!QUESTAO_ATUAL.alts[i]) return;
+            if(!ATUAL.alts[i]) return;
             const d = document.createElement('div');
             d.className = 'opcao';
-            d.innerHTML = `<div class="letra">${l}</div><div style="flex:1">${QUESTAO_ATUAL.alts[i]}</div>`;
-            d.onclick = () => processarResposta(l, d);
+            d.innerHTML = `<div class="letra">${l}</div><div style="flex:1">${ATUAL.alts[i]}</div>`;
+            d.onclick = () => validar(l, d);
             area.appendChild(d);
         });
 
-        const dica = await callGroq(`Aja como tutor. Sem dar a resposta, explique o conceito central para resolver esta questão: ${QUESTAO_ATUAL.enunciado}`, "llama-3.1-8b-instant");
+        const dica = await callGroq(`Explique o fundamento teórico desta questão SEM citar a resposta: ${ATUAL.enunciado}`, "llama-3.1-8b-instant");
         document.getElementById('preventivo-texto').innerText = dica;
     }
 
-    async function processarResposta(letra, elemento) {
-        const isCorrect = letra === QUESTAO_ATUAL.gabarito;
-        elemento.classList.add(isCorrect ? 'correct' : 'wrong');
+    async function validar(letra, el) {
+        document.querySelectorAll('.opcao').forEach(o => o.style.pointerEvents = 'none');
+        const certa = letra === ATUAL.gabarito;
+        el.classList.add(certa ? 'correct' : 'wrong');
         
-        if(!HISTORICO_GLOBAL[PERFIL_ATIVO]) HISTORICO_GLOBAL[PERFIL_ATIVO] = [];
-        HISTORICO_GLOBAL[PERFIL_ATIVO].push({id: QUESTAO_ATUAL.id, status: isCorrect, data: new Date()});
+        if(!HISTORICO[PERFIL_ATIVO]) HISTORICO[PERFIL_ATIVO] = [];
+        HISTORICO[PERFIL_ATIVO].push({id: ATUAL.id, ok: certa, data: new Date()});
         
-        await salvarNoGitHub();
+        await salvarGitHub();
         
         document.getElementById('carrasco-box').style.display = 'block';
-        const feedback = await callGroq(`Aja como mentor carrasco. O aluno marcou ${letra} (correta ${QUESTAO_ATUAL.gabarito}). Fundamente o erro/acerto tecnicamente nesta questão: ${QUESTAO_ATUAL.enunciado}`, "llama-3.1-8b-instant");
+        const feedback = await callGroq(`O aluno marcou ${letra} (correta ${ATUAL.gabarito}). Fundamente tecnicamente com rigor: ${ATUAL.enunciado}`, "llama-3.1-8b-instant");
         document.getElementById('carrasco-texto').innerText = feedback;
         document.getElementById('btn-next').style.display = 'block';
     }
 
-    async function salvarNoGitHub() {
-        try {
-            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_HISTORICO}`;
-            const res = await fetch(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
-            const data = await res.json();
-            await fetch(url, {
-                method: "PUT",
-                headers: { Authorization: `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ message: `Sinc PC: ${PERFIL_ATIVO}`, content: btoa(JSON.stringify(HISTORICO_GLOBAL)), sha: data.sha })
-            });
-        } catch (e) { console.error("Erro de sincronização."); }
+    async function salvarGitHub() {
+        const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_HISTORICO}`;
+        const res = await fetch(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
+        const data = await res.json();
+        await fetch(url, {
+            method: "PUT",
+            headers: { Authorization: `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ message: "Sinc Sync", content: btoa(JSON.stringify(HISTORICO)), sha: data.sha })
+        });
     }
 
     async function callGroq(p, m) {
-        try {
-            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ model: m, messages: [{role: "user", content: p}] })
-            });
-            const d = await r.json();
-            return d.choices[0].message.content;
-        } catch(e) { return "Erro na conexão com o Mentor."; }
+        const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ model: m, messages: [{role: "user", content: p}] })
+        });
+        const d = await r.json();
+        return d.choices[0].message.content;
     }
 
-    function abrirApoio() {
-        const modal = document.getElementById('modal-video');
-        const frame = document.getElementById('video-frame');
-        frame.innerHTML = `<iframe width="100%" height="550" src="https://www.youtube.com/embed?listType=search&list=${QUESTAO_ATUAL.info}" frameborder="0" allowfullscreen></iframe>`;
-        modal.style.display = 'block';
+    function abrirVideo() {
+        // SOLUÇÃO PARA VÍDEO: Abre busca direta no YouTube em nova aba para evitar bloqueio de iframe
+        const query = encodeURIComponent(ATUAL.info + " " + ATUAL.enunciado.substring(0, 50));
+        window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank');
     }
 
-    window.onload = carregarMenuPerfis;
+    init();
 </script>
 </body>
 </html>
