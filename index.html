@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MENTOR IA - PC COMMAND (BANCA CARRASCA)</title>
+    <title>MENTOR IA - PC (MODO SUBSÍDIO & GESTÃO)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS ORIGINAL DO SEU INDEX.HTML - MANTIDO INTEGRALMENTE */
+        /* CSS LEI - MANTIDO INTEGRALMENTE */
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --dark: #0f172a; --accent: #dc2626; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); }
         .app-container { display: flex; height: 100vh; width: 100vw; }
@@ -27,17 +27,18 @@
         .wrong { border-color: #dc2626 !important; background: #fef2f2 !important; color: #dc2626; }
         .ia-box { background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         #setup-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .perfil-row { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; margin-bottom: 8px; border-radius: 8px; padding: 5px 15px; }
+        .btn-del { color: #dc2626; cursor: pointer; font-size: 1.2rem; border: none; background: none; }
     </style>
 </head>
 <body>
 
 <div id="setup-screen">
-    <div style="background:white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 400px; text-align: center;">
-        <h2 style="margin-bottom: 10px;">⚔️ Portal do Candidato</h2>
-        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 30px;">Inicie sua jornada no Campo de Batalha</p>
-        <div id="lista-perfis" style="max-height: 200px; overflow-y: auto; margin-bottom: 20px;"></div>
-        <input type="text" id="novo-perfil-input" placeholder="Digite seu nome de guerra..." style="width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box;">
-        <button onclick="criarPerfil()" style="width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 800;">ALISTAR-SE AGORA</button>
+    <div style="background:white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 420px; text-align: center;">
+        <h2 style="margin-bottom: 20px;">👤 Gestão de Perfis</h2>
+        <div id="lista-perfis" style="max-height: 250px; overflow-y: auto; margin-bottom: 20px;">Carregando...</div>
+        <input type="text" id="novo-perfil-input" placeholder="Novo Perfil..." style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <button onclick="criarPerfil()" style="width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">ADICIONAR PERFIL</button>
     </div>
 </div>
 
@@ -45,44 +46,28 @@
     <div class="quest-side">
         <div class="container">
             <div id="q-header">
-                <span id="meta-info">MARACANAÚ 2026 | CARGO: EDUCAÇÃO</span>
-                <span onclick="location.reload()" style="cursor:pointer; color: var(--primary);">🏠 SAIR DO SISTEMA</span>
+                <span id="meta-info">SISTEMA DE GERAÇÃO DE SUBSÍDIOS</span>
+                <span onclick="location.reload()" style="cursor:pointer; color: var(--primary);">🏠 VOLTAR</span>
             </div>
-            
             <div id="wrapper-assoc" class="texto-associado-wrapper" style="display:none">
                 <div id="q-texto-assoc"></div>
-                <button class="btn-toggle-texto" onclick="toggleTexto()">
-                    <span id="btn-icon">▼</span> <span id="btn-text">Ver texto completo</span>
-                </button>
+                <button class="btn-toggle-texto" onclick="toggleTexto()">▼ Ver texto completo</button>
             </div>
-
             <div id="q-enunciado" class="html-render"></div>
             <div id="q-alternativas" class="alternativas"></div>
-            
-            <button id="btn-next" style="display:none; width: 100%; padding: 20px; background: var(--dark); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 800; margin-top: 30px;" onclick="cicloBanca()">PRÓXIMA MISSÃO →</button>
+            <button id="btn-next" style="display:none; width: 100%; padding: 18px; background: var(--dark); color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 25px;" onclick="cicloQuestao()">PRÓXIMA QUESTÃO</button>
         </div>
     </div>
 
     <div class="ia-side">
-        <div id="progresso-header" class="ia-box" style="background: var(--dark); color: white; border: none;">
-            <h4 style="margin: 0; color: #94a3b8; font-size: 0.7rem; text-transform: uppercase;">STATUS DO CANDIDATO</h4>
-            <div id="user-display" style="font-size: 1.2rem; font-weight: 800; margin-top: 5px;">CARREGANDO...</div>
-            <div id="stats-mini" style="font-size: 0.8rem; margin-top: 10px; color: #16a34a;"></div>
-        </div>
-
         <div class="ia-box" style="border-left: 5px solid var(--primary);">
-            <h4 style="margin: 0 0 10px 0; color: var(--primary);">📖 INTELIGÊNCIA PREVENTIVA</h4>
-            <div id="preventivo-texto" style="font-size: 0.95rem; line-height: 1.6; color: #334155;">Identificando fundamentação teórica...</div>
+            <h4 style="margin: 0 0 10px 0; color: var(--primary);">📖 INTELIGÊNCIA PREVENTIVA (SUBSÍDIO)</h4>
+            <div id="preventivo-texto" style="font-size: 0.95rem; line-height: 1.6; color: #334155;">Aguardando questão...</div>
+            <div id="save-status" style="font-size: 0.7rem; color: #16a34a; margin-top: 10px; font-weight: bold;"></div>
         </div>
-
-        <div id="carrasco-box" class="ia-box" style="display:none; background: #fff1f2; border: 1px solid #fda4af; border-left: 5px solid #e11d48;">
-            <h4 style="margin: 0 0 10px 0; color: #e11d48;">💀 VEREDITO DA BANCA</h4>
-            <div id="carrasco-texto" style="font-size: 0.95rem; font-weight: 500;"></div>
-        </div>
-
-        <div id="log-estudo" class="ia-box" style="font-size: 0.8rem;">
-            <h4 style="margin: 0 0 10px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">AVANÇO NO CRONOGRAMA</h4>
-            <div id="cronograma-status">A IA está mapeando o banco de dados...</div>
+        <div class="ia-box">
+            <h4 style="margin: 0 0 5px 0;">📊 BANCO DE DADOS</h4>
+            <div id="total-subsidios" style="font-size: 0.8rem; color: #64748b;">Carregando estatísticas...</div>
         </div>
     </div>
 </div>
@@ -103,11 +88,11 @@
 
     async function init() {
         try {
-            const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_HISTORICO}`, {
+            const resH = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_HISTORICO}`, {
                 headers: { Authorization: `token ${GITHUB_TOKEN}` }
             });
-            if (res.ok) {
-                const data = await res.json();
+            if (resH.ok) {
+                const data = await resH.json();
                 HISTORICO = JSON.parse(atob(data.content));
                 renderizarPerfis();
             }
@@ -117,46 +102,57 @@
             if (resS.ok) {
                 const dataS = await resS.json();
                 SUBSIDIOS = JSON.parse(atob(dataS.content));
+                document.getElementById('total-subsidios').innerText = `${Object.keys(SUBSIDIOS).length} Subsídios salvos no GitHub.`;
             }
-        } catch (e) { console.log("Iniciando arquivos..."); }
+        } catch (e) { console.error("Erro inicial:", e); }
     }
 
     function renderizarPerfis() {
         const lista = document.getElementById('lista-perfis');
         lista.innerHTML = "";
         Object.keys(HISTORICO).forEach(p => {
-            const b = document.createElement('button');
-            b.style = "width:100%; padding:12px; margin-bottom:8px; border:1px solid #e2e8f0; border-radius:8px; background:white; cursor:pointer; text-align:left; font-weight:600;";
-            b.innerText = `👤 ${p}`;
-            b.onclick = () => entrar(p);
-            lista.appendChild(b);
+            const row = document.createElement('div');
+            row.className = 'perfil-row';
+            row.innerHTML = `
+                <span onclick="entrar('${p}')" style="cursor:pointer; font-weight:600; flex:1;">👤 ${p}</span>
+                <button class="btn-del" onclick="excluirPerfil('${p}')">🗑️</button>
+            `;
+            lista.appendChild(row);
         });
+    }
+
+    async function excluirPerfil(nome) {
+        if(confirm(`Deseja excluir permanentemente o perfil ${nome}?`)) {
+            delete HISTORICO[nome];
+            await salvarArquivo(FILE_HISTORICO, HISTORICO);
+            renderizarPerfis();
+        }
     }
 
     async function criarPerfil() {
         const nome = document.getElementById('novo-perfil-input').value.trim();
-        if(nome) entrar(nome);
+        if(nome && !HISTORICO[nome]) {
+            HISTORICO[nome] = [];
+            await salvarArquivo(FILE_HISTORICO, HISTORICO);
+            entrar(nome);
+        }
     }
 
     async function entrar(nome) {
         PERFIL = nome;
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('main-app').style.display = 'flex';
-        document.getElementById('user-display').innerText = PERFIL;
-        
         const res = await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/banco_final.json?v=${Date.now()}`);
         BANCO = await res.json();
-        cicloBanca();
+        cicloQuestao();
     }
 
-    async function cicloBanca() {
+    async function cicloQuestao() {
         document.getElementById('btn-next').style.display = 'none';
-        document.getElementById('carrasco-box').style.display = 'none';
+        document.getElementById('save-status').innerText = "";
         
         const feitas = (HISTORICO[PERFIL] || []).map(h => h.id);
         const disponiveis = BANCO.filter(q => !feitas.includes(q.id));
-        
-        // Seleção Estratégica (Foca em disciplinas que o usuário mais erra ou ainda não fez)
         ATUAL = disponiveis[Math.floor(Math.random() * disponiveis.length)] || BANCO[0];
         
         renderizarQuestao();
@@ -165,22 +161,19 @@
     async function renderizarQuestao() {
         document.getElementById('meta-info').innerText = ATUAL.info;
         
-        // TEXTO ASSOCIADO (Igual ao seu index.html)
+        // TEXTO ASSOCIADO
         const wrapper = document.getElementById('wrapper-assoc');
         const areaAssoc = document.getElementById('q-texto-assoc');
         let htmlAssoc = ATUAL.htmlTextoAssociado || ATUAL.txtAssoc;
         if (htmlAssoc && htmlAssoc.trim().length > 5) {
-            wrapper.style.display = 'block';
-            areaAssoc.innerHTML = htmlAssoc;
-            areaAssoc.classList.remove('expandido');
+            wrapper.style.display = 'block'; areaAssoc.innerHTML = htmlAssoc;
         } else { wrapper.style.display = 'none'; }
 
-        // ENUNCIADO E ALTERNATIVAS
+        // ENUNCIADO E ALTS
         document.getElementById('q-enunciado').innerHTML = ATUAL.htmlEnunciado || ATUAL.enunciado;
         const altArea = document.getElementById('q-alternativas');
         altArea.innerHTML = '';
         const letras = ['A', 'B', 'C', 'D', 'E'];
-        
         ATUAL.alts.forEach((texto, i) => {
             const div = document.createElement('div');
             div.className = 'opcao';
@@ -193,50 +186,50 @@
             altArea.appendChild(div);
         });
 
-        // INTELIGÊNCIA PREVENTIVA (Cura ou Gera)
+        // GERAÇÃO/BUSCA DE SUBSÍDIO (FOCO TOTAL)
         if (SUBSIDIOS[ATUAL.id]) {
             document.getElementById('preventivo-texto').innerText = SUBSIDIOS[ATUAL.id];
+            document.getElementById('save-status').innerText = "✓ LIDO DO GITHUB";
         } else {
-            const subsidio = await callGroq(`Aja como um professor didático. Explique a teoria puramente técnica e acadêmica por trás deste tema: ${ATUAL.disciplinas ? ATUAL.disciplinas.join(", ") : "Assunto da questão"}. ATENÇÃO: NÃO cite alternativas, NÃO diga a resposta e NÃO analise o enunciado da questão. Apenas ensine o conteúdo.`, "llama-3.1-8b-instant");
-            document.getElementById('preventivo-texto').innerText = subsidio;
-            SUBSIDIOS[ATUAL.id] = subsidio;
-            salvarArquivo(FILE_SUBSIDIOS, SUBSIDIOS);
+            document.getElementById('preventivo-texto').innerText = "IA Gerando subsídio didático...";
+            const sub = await callGroq(`Explique o tema ${ATUAL.disciplinas ? ATUAL.disciplinas.join(", ") : "desta questão"} de forma didática e puramente técnica. NÃO cite a resposta, NÃO analise o enunciado. Ensine o conceito cru para que o aluno possa responder sozinho.`, "llama-3.1-8b-instant");
+            document.getElementById('preventivo-texto').innerText = sub;
+            SUBSIDIOS[ATUAL.id] = sub;
+            await salvarArquivo(FILE_SUBSIDIOS, SUBSIDIOS);
+            document.getElementById('save-status').innerText = "✓ SALVO NO GITHUB";
+            document.getElementById('total-subsidios').innerText = `${Object.keys(SUBSIDIOS).length} Subsídios salvos no GitHub.`;
         }
     }
 
     async function validar(letra, el) {
         document.querySelectorAll('.opcao').forEach(o => o.style.pointerEvents = 'none');
         const correta = letra === ATUAL.gabarito;
-        
-        if(correta) el.classList.add('correct');
-        else {
-            el.classList.add('wrong');
-            const todas = document.querySelectorAll('.opcao');
-            todas.forEach(o => { if(o.querySelector('.letra').innerText === ATUAL.gabarito) o.classList.add('correct'); });
+        el.classList.add(correta ? 'correct' : 'wrong');
+        if(!correta) {
+            document.querySelectorAll('.opcao').forEach(o => {
+                if(o.querySelector('.letra').innerText === ATUAL.gabarito) o.classList.add('correct');
+            });
         }
-
-        if(!HISTORICO[PERFIL]) HISTORICO[PERFIL] = [];
-        HISTORICO[PERFIL].push({id: ATUAL.id, ok: correta, disc: ATUAL.disciplinas});
+        HISTORICO[PERFIL].push({id: ATUAL.id, ok: correta});
         await salvarArquivo(FILE_HISTORICO, HISTORICO);
-
-        // Feedback Carrasco
-        document.getElementById('carrasco-box').style.display = 'block';
-        const feed = await callGroq(`Aja como um examinador de banca de concurso carrasco. O candidato marcou ${letra}, mas a correta era ${ATUAL.gabarito}. ${correta ? 'Ironize o acerto fácil ou reforce a obrigação de saber.' : 'Castigue o erro tecnicamente, mostrando por que ele seria eliminado.'} Baseie-se nesta questão: ${ATUAL.enunciado}`, "llama-3.1-8b-instant");
-        document.getElementById('carrasco-texto').innerText = feed;
         document.getElementById('btn-next').style.display = 'block';
-        
-        atualizarCronograma();
     }
 
     async function salvarArquivo(nome, objeto) {
-        const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${nome}`;
-        const res = await fetch(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
-        const data = await res.json();
-        await fetch(url, {
-            method: "PUT",
-            headers: { Authorization: `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ message: "Sinc", content: btoa(unescape(encodeURIComponent(JSON.stringify(objeto)))), sha: data.sha })
-        });
+        try {
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${nome}`;
+            const res = await fetch(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
+            const data = await res.json();
+            await fetch(url, {
+                method: "PUT",
+                headers: { Authorization: `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    message: "Update", 
+                    content: btoa(unescape(encodeURIComponent(JSON.stringify(objeto)))), 
+                    sha: data.sha 
+                })
+            });
+        } catch (e) { console.error("Erro ao salvar:", e); }
     }
 
     async function callGroq(p, m) {
@@ -252,21 +245,6 @@
     function toggleTexto() {
         const txt = document.getElementById('q-texto-assoc');
         txt.classList.toggle('expandido');
-        document.getElementById('btn-text').innerText = txt.classList.contains('expandido') ? "Recolher texto" : "Ver texto completo";
-    }
-
-    function atualizarCronograma() {
-        const discStats = {};
-        (HISTORICO[PERFIL] || []).forEach(h => {
-            const d = h.disc ? h.disc[0] : "Geral";
-            if(!discStats[d]) discStats[d] = {ok:0, total:0};
-            discStats[d].total++;
-            if(h.ok) discStats[d].ok++;
-        });
-        const area = document.getElementById('cronograma-status');
-        area.innerHTML = Object.entries(discStats).map(([d, s]) => 
-            `<div style="margin-bottom:5px;"><strong>${d}:</strong> ${Math.round((s.ok/s.total)*100)}% de acerto</div>`
-        ).join("");
     }
 
     init();
