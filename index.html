@@ -2,60 +2,96 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>MENTOR IA - PC COMMAND (STRICT GITHUB MODE)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MENTOR IA - PC (Visual index.html)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* CSS EXATAMENTE IGUAL AO SEU INDEX.HTML */
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --dark: #0f172a; --accent: #dc2626; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+        
         .app-container { display: flex; height: 100vh; width: 100vw; }
+        
+        /* Ajuste para o Mentor caber ao lado */
         .quest-side { flex: 1; padding: 40px; overflow-y: auto; border-right: 1px solid #e2e8f0; background: white; }
-        .ia-side { width: 450px; background: #fff; padding: 30px; overflow-y: auto; border-left: 1px solid #e2e8f0; }
-        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
-        .card { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .btn { padding: 15px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-video { background: #ff0000; color: white; margin-top: 10px; }
-        .opcao { display: flex; padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; margin-bottom: 10px; align-items: center; }
-        .opcao:hover { border-color: var(--primary); }
-        .letra { width: 30px; height: 30px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; margin-right: 15px; }
-        .correct { border-color: #16a34a !important; background: #f0fdf4 !important; }
-        .wrong { border-color: var(--accent) !important; background: #fef2f2 !important; }
-        img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
+        .ia-side { width: 400px; background: #fff; padding: 25px; overflow-y: auto; border-left: 1px solid #e2e8f0; }
+
+        .container { max-width: 800px; margin: 0 auto; width: 100%; }
+        #q-header { color: #94a3b8; font-size: 0.8rem; margin-bottom: 25px; font-weight: 600; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; display: flex; justify-content: space-between; }
+        
+        .texto-associado-wrapper { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6; margin-bottom: 30px; border-radius: 0 8px 8px 0; overflow: hidden; position: relative; }
+        #q-texto-assoc { padding: 20px; max-height: 100px; overflow: hidden; transition: max-height 0.4s ease; font-size: 1.05rem; color: #475569; line-height: 1.6; }
+        #q-texto-assoc.expandido { max-height: none; }
+        .btn-toggle-texto { width: 100%; padding: 8px; background: #f1f5f9; border: none; border-top: 1px solid #e2e8f0; color: var(--primary); font-weight: bold; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        
+        .html-render { font-size: 1.15rem; line-height: 1.7; color: #1e293b; }
+        .html-render img { display: block; max-width: 100%; margin: 25px auto; border-radius: 6px; }
+        
+        .alternativas { margin-top: 35px; display: grid; gap: 12px; }
+        .opcao { display: flex; padding: 18px; border: 2px solid #f1f5f9; border-radius: 10px; cursor: pointer; transition: 0.2s; align-items: center; }
+        .opcao:hover { border-color: var(--primary); background: #f0f7ff; }
+        .letra { min-width: 32px; height: 32px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 15px; color: var(--primary); }
+        
+        .correct { border-color: #16a34a !important; background: #f0fdf4 !important; color: #16a34a; }
+        .wrong { border-color: #dc2626 !important; background: #fef2f2 !important; color: #dc2626; }
+
+        /* Estilos da IA em caixas separadas */
+        .ia-box { background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 15px; font-size: 0.95rem; }
+        .btn-next { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        
+        /* Tela de Perfis */
         #setup-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
 <div id="setup-screen">
-    <div class="card" style="width: 400px; text-align: center;">
-        <h2>🛡️ Acesso Centralizado</h2>
-        <p style="font-size: 0.9rem; color: #666;">Os perfis são lidos diretamente do seu GitHub.</p>
-        <div id="lista-perfis" style="margin: 20px 0; max-height: 200px; overflow-y: auto;"></div>
-        <input type="text" id="novo-perfil" placeholder="Novo Perfil" class="btn" style="border: 1px solid #ccc; margin-bottom: 10px; text-align: center;">
-        <button class="btn btn-primary" onclick="criarPerfil()">CRIAR E ENTRAR</button>
+    <div style="background:white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 350px; text-align: center;">
+        <h2 style="margin-bottom: 20px;">👤 Escolha o Perfil</h2>
+        <div id="lista-perfis">Carregando perfis do GitHub...</div>
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+        <input type="text" id="novo-perfil-input" placeholder="Novo nome" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+        <button onclick="criarPerfil()" style="width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">CRIAR NOVO</button>
     </div>
 </div>
 
 <div id="main-app" class="app-container" style="display: none;">
     <div class="quest-side">
-        <div class="nav-header">
-            <div id="q-meta" style="font-weight: 800; color: var(--primary); font-size: 0.75rem;"></div>
-            <button onclick="location.reload()" style="cursor:pointer; border:none; background:none; font-size:0.8rem;">🏠 SAIR</button>
+        <div class="container">
+            <div id="q-header">
+                <span id="meta-info"></span>
+                <span onclick="location.reload()" style="cursor:pointer; color: var(--primary);">🏠 Sair</span>
+            </div>
+            
+            <div id="wrapper-assoc" class="texto-associado-wrapper" style="display:none">
+                <div id="q-texto-assoc"></div>
+                <button class="btn-toggle-texto" onclick="toggleTexto()">
+                    <span id="btn-icon">▼</span> <span id="btn-text">Ver texto completo</span>
+                </button>
+            </div>
+
+            <div id="q-enunciado" class="html-render"></div>
+            <div id="q-alternativas" class="alternativas"></div>
+            
+            <button id="btn-next" class="btn-next" style="display:none" onclick="proxima()">PRÓXIMA QUESTÃO →</button>
         </div>
-        <div id="q-enunciado" style="font-size: 1.2rem; line-height: 1.6;"></div>
-        <div id="q-alternativas" style="margin-top: 25px;"></div>
-        <button id="btn-next" class="btn btn-primary" style="display:none; margin-top:20px;" onclick="proximaQuestao()">PRÓXIMA QUESTÃO ➔</button>
     </div>
 
     <div class="ia-side">
-        <div id="preventivo-box" class="card" style="background: #eff6ff;">
-            <h4 style="margin:0 0 10px 0;">📖 INTELIGÊNCIA PREVENTIVA</h4>
-            <div id="preventivo-texto">...</div>
+        <h3 style="margin-top: 0;">🧠 Mentor Estrategista</h3>
+        
+        <div class="ia-box" style="border-left: 4px solid var(--primary);">
+            <strong>📖 Inteligência Preventiva</strong>
+            <div id="preventivo-texto" style="margin-top: 10px; color: #475569;">Aguardando seleção...</div>
         </div>
-        <button class="btn btn-video" onclick="abrirVideo()">🎬 VER VÍDEO NO YOUTUBE</button>
-        <div id="carrasco-box" class="card" style="background: var(--dark); color: white; display:none; margin-top:20px;">
-            <h4 style="margin:0 0 10px 0; color: #ff4d4d;">💀 FEEDBACK CARRASCO</h4>
-            <div id="carrasco-texto"></div>
+
+        <button onclick="abrirVideo()" style="width:100%; padding: 12px; background: #ff0000; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            🎬 VÍDEO NO YOUTUBE
+        </button>
+
+        <div id="carrasco-box" class="ia-box" style="display:none; margin-top: 20px; background: #0f172a; color: white; border-left: 4px solid #dc2626;">
+            <strong style="color: #ff4d4d;">💀 Feedback Carrasco</strong>
+            <div id="carrasco-texto" style="margin-top: 10px; font-size: 0.9rem; line-height: 1.5;"></div>
         </div>
     </div>
 </div>
@@ -67,12 +103,12 @@
     const REPO_NAME = "meu-banco-questoes";
     const FILE_HISTORICO = "progresso.json";
 
-    let PERFIL_ATIVO = "";
+    let PERFIL = "";
     let BANCO = [];
     let HISTORICO = {};
     let ATUAL = null;
 
-    // 1. CARREGA PERFIS DO GITHUB (IGNORA MEMÓRIA LOCAL)
+    // INICIALIZAÇÃO VIA GITHUB
     async function init() {
         try {
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_HISTORICO}`, {
@@ -82,76 +118,111 @@
                 const data = await res.json();
                 HISTORICO = JSON.parse(atob(data.content));
                 const lista = document.getElementById('lista-perfis');
+                lista.innerHTML = "";
                 Object.keys(HISTORICO).forEach(p => {
-                    lista.innerHTML += `<button class="btn" style="margin-bottom:5px; background:#e2e8f0" onclick="entrar('${p}')">👤 ${p}</button>`;
+                    const btn = document.createElement('button');
+                    btn.className = "btn-next";
+                    btn.style.marginBottom = "5px";
+                    btn.style.background = "#f1f5f9";
+                    btn.style.color = "#1e293b";
+                    btn.innerText = `👤 ${p}`;
+                    btn.onclick = () => entrar(p);
+                    lista.appendChild(btn);
                 });
+            } else {
+                document.getElementById('lista-perfis').innerText = "Nenhum perfil no GitHub.";
             }
-        } catch (e) { console.log("Sem histórico prévio."); }
+        } catch (e) { console.error(e); }
     }
 
-    function entrar(nome) {
-        PERFIL_ATIVO = nome;
-        document.getElementById('setup-screen').style.display = 'none';
-        document.getElementById('main-app').style.display = 'flex';
-        carregarBanco();
-    }
-
-    async function criarPerfil() {
-        const nome = document.getElementById('novo-perfil').value.trim();
+    function criarPerfil() {
+        const nome = document.getElementById('novo-perfil-input').value.trim();
         if(nome) entrar(nome);
     }
 
-    async function carregarBanco() {
+    async function entrar(nome) {
+        PERFIL = nome;
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
         const res = await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/banco_final.json?v=${Date.now()}`);
         BANCO = await res.json();
-        proximaQuestao();
+        proxima();
     }
 
-    async function proximaQuestao() {
+    async function proxima() {
         document.getElementById('btn-next').style.display = 'none';
         document.getElementById('carrasco-box').style.display = 'none';
-        document.getElementById('preventivo-texto').innerText = "Mentor analisando...";
+        document.getElementById('preventivo-texto').innerText = "Mentor analisando a melhor estratégia...";
 
-        const feitas = (HISTORICO[PERFIL_ATIVO] || []).map(h => h.id);
-        const listaIDs = BANCO.filter(q => !feitas.includes(q.id)).slice(0, 20).map(q => q.id);
+        // Filtro de questões não feitas
+        const feitas = (HISTORICO[PERFIL] || []).map(h => h.id);
+        const disponiveis = BANCO.filter(q => !feitas.includes(q.id)).slice(0, 20).map(q => q.id);
         
-        const resp = await callGroq(`Seja breve. Escolha um ID desta lista para o perfil ${PERFIL_ATIVO}: ${JSON.stringify(listaIDs)}. Responda APENAS o número.`, "llama-3.3-70b-versatile");
+        const resp = await callGroq(`Seja breve. Escolha UM ID desta lista para o perfil ${PERFIL}: ${JSON.stringify(disponiveis)}. Responda APENAS o número.`, "llama-3.3-70b-versatile");
         const idEscolhido = resp.replace(/\D/g, '') || BANCO[0].id;
-        
         ATUAL = BANCO.find(q => q.id == idEscolhido);
         
-        // SUPORTE A IMAGENS E TEXTOS ASSOCIADOS
-        document.getElementById('q-meta').innerText = ATUAL.info;
+        renderizarQuestao();
+    }
+
+    function renderizarQuestao() {
+        // CABEÇALHO
+        document.getElementById('meta-info').innerText = `${ATUAL.info} | ${ATUAL.id}`;
+        
+        // TEXTO ASSOCIADO (Igual ao seu index.html)
+        const wrapper = document.getElementById('wrapper-assoc');
+        const areaAssoc = document.getElementById('q-texto-assoc');
+        let htmlAssoc = ATUAL.htmlTextoAssociado || ATUAL.txtAssoc;
+        if (htmlAssoc && htmlAssoc.trim().length > 5) {
+            wrapper.style.display = 'block';
+            areaAssoc.innerHTML = htmlAssoc;
+            areaAssoc.classList.remove('expandido');
+            document.getElementById('btn-text').innerText = "Ver texto completo";
+            document.getElementById('btn-icon').innerText = "▼";
+        } else { wrapper.style.display = 'none'; }
+
+        // ENUNCIADO
         document.getElementById('q-enunciado').innerHTML = ATUAL.htmlEnunciado || ATUAL.enunciado;
         
-        const area = document.getElementById('q-alternativas');
-        area.innerHTML = "";
-        ["A","B","C","D","E"].forEach((l, i) => {
-            if(!ATUAL.alts[i]) return;
-            const d = document.createElement('div');
-            d.className = 'opcao';
-            d.innerHTML = `<div class="letra">${l}</div><div style="flex:1">${ATUAL.alts[i]}</div>`;
-            d.onclick = () => validar(l, d);
-            area.appendChild(d);
+        // ALTERNATIVAS COM IMAGENS (Igual ao seu index.html)
+        const altArea = document.getElementById('q-alternativas');
+        altArea.innerHTML = '';
+        const letras = ['A', 'B', 'C', 'D', 'E'];
+        ATUAL.alts.forEach((texto, i) => {
+            const div = document.createElement('div');
+            div.className = 'opcao';
+            let imgs = "";
+            if(ATUAL.imgsAlternativas && ATUAL.imgsAlternativas[i]) {
+                ATUAL.imgsAlternativas[i].forEach(url => imgs += `<img src="${url}" style="display:block; max-width:100%; margin-top:10px;">`);
+            }
+            div.innerHTML = `<div class="letra">${letras[i]}</div><div style="flex:1">${texto}${imgs}</div>`;
+            div.onclick = () => validar(letras[i], div);
+            altArea.appendChild(div);
         });
 
-        const dica = await callGroq(`Explique o fundamento teórico desta questão SEM citar a resposta: ${ATUAL.enunciado}`, "llama-3.1-8b-instant");
-        document.getElementById('preventivo-texto').innerText = dica;
+        // IA PREVENTIVA
+        callGroq(`Explique o conceito teórico para esta questão SEM dar a resposta: ${ATUAL.enunciado}`, "llama-3.1-8b-instant")
+            .then(d => document.getElementById('preventivo-texto').innerText = d);
     }
 
     async function validar(letra, el) {
         document.querySelectorAll('.opcao').forEach(o => o.style.pointerEvents = 'none');
-        const certa = letra === ATUAL.gabarito;
-        el.classList.add(certa ? 'correct' : 'wrong');
+        const correta = letra === ATUAL.gabarito;
         
-        if(!HISTORICO[PERFIL_ATIVO]) HISTORICO[PERFIL_ATIVO] = [];
-        HISTORICO[PERFIL_ATIVO].push({id: ATUAL.id, ok: certa, data: new Date()});
-        
+        if(correta) el.classList.add('correct');
+        else {
+            el.classList.add('wrong');
+            const todas = document.querySelectorAll('.opcao');
+            todas.forEach(o => { if(o.querySelector('.letra').innerText === ATUAL.gabarito) o.classList.add('correct'); });
+        }
+
+        if(!HISTORICO[PERFIL]) HISTORICO[PERFIL] = [];
+        HISTORICO[PERFIL].push({id: ATUAL.id, ok: correta});
         await salvarGitHub();
-        
+
         document.getElementById('carrasco-box').style.display = 'block';
-        const feedback = await callGroq(`O aluno marcou ${letra} (correta ${ATUAL.gabarito}). Fundamente tecnicamente com rigor: ${ATUAL.enunciado}`, "llama-3.1-8b-instant");
-        document.getElementById('carrasco-texto').innerText = feedback;
+        const feed = await callGroq(`O aluno marcou ${letra} (correta ${ATUAL.gabarito}). Fundamente o erro ou acerto com rigor técnico: ${ATUAL.enunciado}`, "llama-3.1-8b-instant");
+        document.getElementById('carrasco-texto').innerText = feed;
         document.getElementById('btn-next').style.display = 'block';
     }
 
@@ -162,7 +233,7 @@
         await fetch(url, {
             method: "PUT",
             headers: { Authorization: `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ message: "Sinc Sync", content: btoa(JSON.stringify(HISTORICO)), sha: data.sha })
+            body: JSON.stringify({ message: "Sinc", content: btoa(JSON.stringify(HISTORICO)), sha: data.sha })
         });
     }
 
@@ -176,8 +247,20 @@
         return d.choices[0].message.content;
     }
 
+    function toggleTexto() {
+        const txt = document.getElementById('q-texto-assoc');
+        const btnText = document.getElementById('btn-text');
+        const btnIcon = document.getElementById('btn-icon');
+        if (txt.classList.contains('expandido')) {
+            txt.classList.remove('expandido');
+            btnText.innerText = "Ver texto completo"; btnIcon.innerText = "▼";
+        } else {
+            txt.classList.add('expandido');
+            btnText.innerText = "Recolher texto"; btnIcon.innerText = "▲";
+        }
+    }
+
     function abrirVideo() {
-        // SOLUÇÃO PARA VÍDEO: Abre busca direta no YouTube em nova aba para evitar bloqueio de iframe
         const query = encodeURIComponent(ATUAL.info + " " + ATUAL.enunciado.substring(0, 50));
         window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank');
     }
