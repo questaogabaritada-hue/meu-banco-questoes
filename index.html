@@ -3,27 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MENTOR IA - CAMPO DE BATALHA</title>
+    <title>MENTOR IA - DESKTOP COMMAND</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --dark: #0f172a; --accent: #dc2626; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow: hidden; }
         
-        .app-container { display: flex; height: 100vh; flex-direction: row; }
-        @media (max-width: 900px) { .app-container { flex-direction: column; height: auto; } }
+        /* Layout Fixo para PC (Meio a Meio) */
+        .app-container { display: flex; height: 100vh; width: 100vw; }
 
-        /* Estilo TikTok para Mobile / Meio a meio para PC */
-        .quest-side { flex: 1.2; padding: 30px; overflow-y: auto; border-right: 1px solid #e2e8f0; }
-        .ia-side { flex: 0.8; background: white; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        @media (max-width: 900px) { .ia-side { width: 100%; border-left: none; border-top: 2px solid #e2e8f0; } }
+        /* Coluna da Questão (Esquerda) */
+        .quest-side { 
+            flex: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+            border-right: 1px solid #e2e8f0; 
+            display: flex; 
+            flex-direction: column;
+        }
 
-        .card { background: white; padding: 25px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        /* Coluna da IA (Direita) */
+        .ia-side { 
+            width: 480px; 
+            background: white; 
+            padding: 30px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            box-shadow: -5px 0 15px rgba(0,0,0,0.02);
+        }
+
+        /* Header de Controle */
+        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn-home { background: none; border: 1px solid #cbd5e1; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+
+        .card { background: white; padding: 25px; border-radius: 18px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         .btn { padding: 18px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; text-transform: uppercase; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-profile { background: #f1f5f9; color: var(--dark); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-profile:hover { background: #e2e8f0; }
+        .btn-subsidiary { background: #f1f5f9; color: var(--primary); border: 2px dashed var(--primary); }
         
-        .opcao { display: flex; padding: 18px; border: 2px solid #f1f5f9; border-radius: 14px; cursor: pointer; margin-bottom: 12px; align-items: center; }
+        .opcao { display: flex; padding: 18px; border: 2px solid #f1f5f9; border-radius: 14px; cursor: pointer; margin-bottom: 12px; align-items: center; transition: 0.2s; }
+        .opcao:hover { border-color: var(--primary); background: #f0f7ff; }
         .letra { width: 35px; height: 35px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; margin-right: 15px; color: var(--primary); }
         
         .correct { border-color: #16a34a !important; background: #f0fdf4 !important; }
@@ -31,26 +52,29 @@
 
         #preventivo-box { background: #eff6ff; border-left: 6px solid var(--primary); padding: 20px; border-radius: 12px; }
         #carrasco-box { background: var(--dark); color: white; padding: 25px; border-radius: 18px; display: none; }
+        
+        /* Modal Video */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
     </style>
 </head>
 <body>
 
-<div id="setup-screen" style="padding: 50px; max-width: 550px; margin: auto; text-align: center;">
-    <h1 style="font-size: 2.2rem; margin-bottom: 10px;">🛡️ Seus Perfis</h1>
-    <div id="lista-perfis" class="card" style="text-align: left;">
-        </div>
-    
-    <div class="card">
-        <h4>Criar Novo Perfil</h4>
-        <input type="text" id="novo-perfil" placeholder="Nome do Perfil" class="card" style="width:100%; box-sizing: border-box; text-align:center;">
-        <button class="btn btn-primary" onclick="criarPerfil()">CRIAR E ENTRAR</button>
+<div id="setup-screen" style="padding: 100px 50px; max-width: 600px; margin: auto; text-align: center;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 10px;">⚔️ Battle Station PC</h1>
+    <div id="lista-perfis" class="card" style="text-align: left; margin-top: 30px;"></div>
+    <div class="card" style="margin-top: 20px;">
+        <input type="text" id="novo-perfil" placeholder="Nome do Novo Perfil" class="card" style="width:100%; box-sizing: border-box; text-align:center;">
+        <button class="btn btn-primary" onclick="criarPerfil()">CRIAR NOVO PERFIL</button>
     </div>
 </div>
 
 <div id="main-app" class="app-container" style="display: none;">
     <div class="quest-side">
-        <div id="q-meta" style="font-weight: 800; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; font-size: 0.8rem;"></div>
-        <div id="q-enunciado" style="font-size: 1.25rem; line-height: 1.6; margin-bottom: 30px;"></div>
+        <div class="nav-header">
+            <div id="q-meta" style="font-weight: 800; color: var(--primary); text-transform: uppercase; font-size: 0.8rem;"></div>
+            <button class="btn-home" onclick="resetApp()">🏠 TROCAR PERFIL</button>
+        </div>
+        <div id="q-enunciado" style="font-size: 1.4rem; line-height: 1.6; margin-bottom: 30px;"></div>
         <div id="q-alternativas"></div>
         <button id="btn-next" class="btn btn-primary" style="display:none; margin-top:20px; max-width: 300px;" onclick="cicloEstrategico()">PRÓXIMA QUESTÃO ➔</button>
     </div>
@@ -58,13 +82,19 @@
     <div class="ia-side">
         <div id="preventivo-box">
             <h4 style="margin: 0 0 10px 0;">📖 INTELIGÊNCIA PREVENTIVA</h4>
-            <div id="preventivo-texto">O Mentor está preparando o tema...</div>
+            <div id="preventivo-texto">Analisando fundamentos...</div>
         </div>
-        <button class="btn btn-subsidiary" onclick="abrirApoio()">🎬 VÍDEO-AULA DE APOIO</button>
+        <button class="btn btn-subsidiary" onclick="abrirApoio()">🎬 VÍDEO-AULA RELACIONADA</button>
         <div id="carrasco-box">
-            <h4 style="margin: 0 0 10px 0; color: #ff4d4d;">💀 RAIO-X DO CARRASCO</h4>
+            <h4 style="margin: 0 0 10px 0; color: #ff4d4d;">💀 FEEDBACK CARRASCO</h4>
             <div id="carrasco-texto"></div>
         </div>
+    </div>
+</div>
+
+<div id="modal-video" class="modal" onclick="this.style.display='none'">
+    <div style="position:relative; top:50%; transform:translateY(-50%); width:85%; max-width:1000px; margin:auto;">
+        <div id="video-frame"></div>
     </div>
 </div>
 
@@ -81,16 +111,15 @@
     let HISTORICO_GLOBAL = {};
     let QUESTAO_ATUAL = null;
 
-    // Gerenciamento de Perfis
     function carregarMenuPerfis() {
         const perfis = JSON.parse(localStorage.getItem('mentor_perfis') || "[]");
         const lista = document.getElementById('lista-perfis');
-        lista.innerHTML = perfis.length ? "" : "<p style='text-align:center'>Nenhum perfil criado.</p>";
+        lista.innerHTML = perfis.length ? "" : "<p style='text-align:center'>Nenhum perfil ativo no PC.</p>";
         perfis.forEach(p => {
-            const b = document.createElement('div');
-            b.className = 'btn btn-profile';
-            b.innerHTML = `<span>👤 ${p}</span> <button onclick="iniciarSessao('${p}')" style="background:var(--primary); color:white; border:none; padding:5px 15px; border-radius:5px; cursor:pointer">ENTRAR</button>`;
-            lista.appendChild(b);
+            const row = document.createElement('div');
+            row.style = "display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #f1f5f9";
+            row.innerHTML = `<strong>👤 ${p}</strong><button class="btn-home" style="background:var(--primary); color:white" onclick="iniciarSessao('${p}')">CARREGAR</button>`;
+            lista.appendChild(row);
         });
     }
 
@@ -111,9 +140,12 @@
         cicloEstrategico();
     }
 
-    // O resto da lógica de Sincronia, IA e Interface permanece a mesma, 
-    // agora alimentada pelo seletor visual acima.
-    
+    function resetApp() {
+        document.getElementById('main-app').style.display = 'none';
+        document.getElementById('setup-screen').style.display = 'block';
+        carregarMenuPerfis();
+    }
+
     async function sincronizarGitHub() {
         try {
             const resB = await fetch(`${BANCO_URL}?v=${Date.now()}`);
@@ -125,21 +157,30 @@
                 const dataH = await resH.json();
                 HISTORICO_GLOBAL = JSON.parse(atob(dataH.content));
             }
-        } catch (e) { console.log("Histórico novo."); }
+        } catch (e) { HISTORICO_GLOBAL = {}; }
     }
 
     async function cicloEstrategico() {
         document.getElementById('btn-next').style.display = 'none';
         document.getElementById('carrasco-box').style.display = 'none';
-        const ids = BANCO_DADOS.map(q => ({id: q.id, info: q.info})).slice(0, 50);
-        const id = await callGroq(`Estrategista. Perfil: ${PERFIL_ATIVO}. Escolha um ID: ${JSON.stringify(ids)}`, "llama-3.3-70b-versatile");
-        montarQuestao(id.replace(/\D/g, ''));
+        document.getElementById('preventivo-texto').innerText = "Mentor analisando...";
+        
+        // Filtra questões não feitas para evitar travamento na mesma
+        const feitas = (HISTORICO_GLOBAL[PERFIL_ATIVO] || []).map(h => h.id);
+        const disponiveis = BANCO_DADOS.filter(q => !feitas.includes(q.id)).slice(0, 30);
+        
+        const prompt = `Como estrategista, escolha UM ID desta lista para o perfil ${PERFIL_ATIVO}: ${JSON.stringify(disponiveis.map(d => d.id))}. Responda apenas o número.`;
+        const idResp = await callGroq(prompt, "llama-3.3-70b-versatile");
+        const idFinal = idResp.replace(/\D/g, '');
+        
+        montarQuestao(idFinal || BANCO_DADOS[0].id);
     }
 
     async function montarQuestao(id) {
-        QUESTAO_ATUAL = BANCO_DADOS.find(q => q.id == id) || BANCO_DADOS[0];
+        QUESTAO_ATUAL = BANCO_DADOS.find(q => q.id == id) || BANCO_DADOS[Math.floor(Math.random()*BANCO_DADOS.length)];
         document.getElementById('q-meta').innerText = QUESTAO_ATUAL.info;
         document.getElementById('q-enunciado').innerHTML = QUESTAO_ATUAL.htmlEnunciado || QUESTAO_ATUAL.enunciado;
+        
         const area = document.getElementById('q-alternativas');
         area.innerHTML = "";
         ["A","B","C","D","E"].forEach((l, i) => {
@@ -150,41 +191,56 @@
             d.onclick = () => processarResposta(l, d);
             area.appendChild(d);
         });
-        const dica = await callGroq(`Conceito teórico para esta questão SEM dar gabarito: ${QUESTAO_ATUAL.enunciado}`, "llama-3.1-8b-instant");
+
+        const dica = await callGroq(`Aja como tutor. Sem dar a resposta, explique o conceito central para resolver esta questão: ${QUESTAO_ATUAL.enunciado}`, "llama-3.1-8b-instant");
         document.getElementById('preventivo-texto').innerText = dica;
     }
 
     async function processarResposta(letra, elemento) {
         const isCorrect = letra === QUESTAO_ATUAL.gabarito;
         elemento.classList.add(isCorrect ? 'correct' : 'wrong');
+        
         if(!HISTORICO_GLOBAL[PERFIL_ATIVO]) HISTORICO_GLOBAL[PERFIL_ATIVO] = [];
-        HISTORICO_GLOBAL[PERFIL_ATIVO].push({id: QUESTAO_ATUAL.id, status: isCorrect});
+        HISTORICO_GLOBAL[PERFIL_ATIVO].push({id: QUESTAO_ATUAL.id, status: isCorrect, data: new Date()});
+        
         await salvarNoGitHub();
+        
         document.getElementById('carrasco-box').style.display = 'block';
-        const feedback = await callGroq(`Feedback carrasco para resposta ${letra} (correta ${QUESTAO_ATUAL.gabarito}): ${QUESTAO_ATUAL.enunciado}`, "llama-3.1-8b-instant");
+        const feedback = await callGroq(`Aja como mentor carrasco. O aluno marcou ${letra} (correta ${QUESTAO_ATUAL.gabarito}). Fundamente o erro/acerto tecnicamente nesta questão: ${QUESTAO_ATUAL.enunciado}`, "llama-3.1-8b-instant");
         document.getElementById('carrasco-texto').innerText = feedback;
         document.getElementById('btn-next').style.display = 'block';
     }
 
     async function salvarNoGitHub() {
-        const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_HISTORICO}`;
-        const res = await fetch(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
-        const data = await res.json();
-        await fetch(url, {
-            method: "PUT",
-            headers: { Authorization: `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ message: "Sinc", content: btoa(JSON.stringify(HISTORICO_GLOBAL)), sha: data.sha })
-        });
+        try {
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_HISTORICO}`;
+            const res = await fetch(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } });
+            const data = await res.json();
+            await fetch(url, {
+                method: "PUT",
+                headers: { Authorization: `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ message: `Sinc PC: ${PERFIL_ATIVO}`, content: btoa(JSON.stringify(HISTORICO_GLOBAL)), sha: data.sha })
+            });
+        } catch (e) { console.error("Erro de sincronização."); }
     }
 
     async function callGroq(p, m) {
-        const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ model: m, messages: [{role: "user", content: p}] })
-        });
-        const d = await r.json();
-        return d.choices[0].message.content;
+        try {
+            const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ model: m, messages: [{role: "user", content: p}] })
+            });
+            const d = await r.json();
+            return d.choices[0].message.content;
+        } catch(e) { return "Erro na conexão com o Mentor."; }
+    }
+
+    function abrirApoio() {
+        const modal = document.getElementById('modal-video');
+        const frame = document.getElementById('video-frame');
+        frame.innerHTML = `<iframe width="100%" height="550" src="https://www.youtube.com/embed?listType=search&list=${QUESTAO_ATUAL.info}" frameborder="0" allowfullscreen></iframe>`;
+        modal.style.display = 'block';
     }
 
     window.onload = carregarMenuPerfis;
